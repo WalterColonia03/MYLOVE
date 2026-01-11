@@ -202,7 +202,7 @@ function aceptarPropuesta() {
     setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍"); }, 1500);
 }
 
-/* --- LÓGICA DEL ÁRBOL CORREGIDA (SOLO CRECER, NO BORRAR) --- */
+/* --- LÓGICA DEL ÁRBOL CORREGIDA (AUTOMÁTICO Y PERSISTENTE) --- */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
     
@@ -211,25 +211,51 @@ function iniciarAnimacionArbol() {
         return;
     }
 
+    // Ajustar tamaño del canvas a la pantalla
     var width = window.innerWidth;
     var height = window.innerHeight;
     
     canvas.attr("width", width);
     canvas.attr("height", height);
 
+    // Escalar las coordenadas del árbol proporcionalmente al tamaño de pantalla
+    var scaleX = width / 1100;  // 1100 es el ancho original del diseño
+    var scaleY = height / 680;  // 680 es el alto original del diseño
+    var scaleFactor = Math.min(scaleX, scaleY, 1); // No escalar más grande que el original
+
     var opts = {
-        seed: { x: width / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 },
-        branch: [ [535, 680, 570, 250, 500, 200, 30, 100, [ [540, 500, 455, 417, 340, 400, 13, 100, [ [450, 435, 434, 430, 394, 395, 2, 40] ]], [550, 445, 600, 356, 680, 345, 12, 100, [ [578, 400, 648, 409, 661, 426, 3, 80] ]], [539, 281, 537, 248, 534, 217, 3, 40], [546, 397, 413, 247, 328, 244, 9, 80, [ [427, 286, 383, 253, 371, 205, 2, 40], [498, 345, 435, 315, 395, 330, 4, 60] ]], [546, 357, 608, 252, 678, 221, 6, 100, [ [590, 293, 646, 277, 648, 271, 2, 80] ]] ]] ],
-        bloom: { num: 700, width: 1080, height: 650 },
-        footer: { width: 1200, height: 5, speed: 10 }
-    }
+        seed: { x: width / 2, y: 50, color: "rgb(190, 26, 37)", scale: 2 },
+        branch: [ 
+            [535 * scaleX, 680 * scaleY, 570 * scaleX, 250 * scaleY, 500 * scaleX, 200 * scaleY, 30 * scaleFactor, 100, 
+                [ 
+                    [540 * scaleX, 500 * scaleY, 455 * scaleX, 417 * scaleY, 340 * scaleX, 400 * scaleY, 13 * scaleFactor, 100, 
+                        [ [450 * scaleX, 435 * scaleY, 434 * scaleX, 430 * scaleY, 394 * scaleX, 395 * scaleY, 2 * scaleFactor, 40] ]
+                    ], 
+                    [550 * scaleX, 445 * scaleY, 600 * scaleX, 356 * scaleY, 680 * scaleX, 345 * scaleY, 12 * scaleFactor, 100, 
+                        [ [578 * scaleX, 400 * scaleY, 648 * scaleX, 409 * scaleY, 661 * scaleX, 426 * scaleY, 3 * scaleFactor, 80] ]
+                    ], 
+                    [539 * scaleX, 281 * scaleY, 537 * scaleX, 248 * scaleY, 534 * scaleX, 217 * scaleY, 3 * scaleFactor, 40], 
+                    [546 * scaleX, 397 * scaleY, 413 * scaleX, 247 * scaleY, 328 * scaleX, 244 * scaleY, 9 * scaleFactor, 80, 
+                        [ 
+                            [427 * scaleX, 286 * scaleY, 383 * scaleX, 253 * scaleY, 371 * scaleX, 205 * scaleY, 2 * scaleFactor, 40], 
+                            [498 * scaleX, 345 * scaleY, 435 * scaleX, 315 * scaleY, 395 * scaleX, 330 * scaleY, 4 * scaleFactor, 60] 
+                        ]
+                    ], 
+                    [546 * scaleX, 357 * scaleY, 608 * scaleX, 252 * scaleY, 678 * scaleX, 221 * scaleY, 6 * scaleFactor, 100, 
+                        [ [590 * scaleX, 293 * scaleY, 646 * scaleX, 277 * scaleY, 648 * scaleX, 271 * scaleY, 2 * scaleFactor, 80] ]
+                    ] 
+                ]
+            ] 
+        ],
+        bloom: { num: 700, width: width, height: height * 0.95 },
+        footer: { width: width, height: 5, speed: 10 }
+    };
 
     var tree = new Tree(canvas[0], width, height, opts);
     var seed = tree.seed;
     var foot = tree.footer;
-    var hold = 1;
 
-    // Click: Sacudir
+    // Click: Sacudir y añadir flores
     canvas.click(function(e) {
         canvas.addClass("shaking");
         setTimeout(function() { canvas.removeClass("shaking"); }, 500);
@@ -237,37 +263,46 @@ function iniciarAnimacionArbol() {
         var x = e.pageX - offset.left;
         var y = e.pageY - offset.top;
         for (var i = 0; i < 5; i++) {
-             var point = new Point(x, y);
-             var newBloom = new Bloom(tree, point, tree.seed.heart.figure, 'rgb(255,0,0)', 1, null, 1, new Point(x, height), 300);
-             tree.addBloom(newBloom);
+            var point = new Point(x, y);
+            var newBloom = new Bloom(tree, point, tree.seed.heart.figure, 'rgb(255,0,0)', 1, null, 1, new Point(x, height), 300);
+            tree.addBloom(newBloom);
         }
     });
 
-    // --- AQUÍ ESTÁ LA SOLUCIÓN: SECUENCIA SIN "JUMP" NI "MOVE" ---
+    // --- SECUENCIA AUTOMÁTICA SIN ESPERAR CLICS ---
     var runAsync = eval(Jscex.compile("async", function () {
-        $await(seed.hover()); // Inicia Semilla
+        // Dibujar el corazón inicial (bypass de hover - no esperamos clic)
+        seed.drawHeart();
+        $await(Jscex.Async.sleep(300));
         
-        // Cae al suelo
+        // Animación de reducción del corazón (semilla cayendo)
         while (seed.canScale()) {
             seed.scale(0.95);
             $await(Jscex.Async.sleep(10));
         }
+        
+        // Semilla cae al suelo
         while (seed.canMove()) {
             seed.move(0, 2);
             foot.draw();
             $await(Jscex.Async.sleep(10));
         }
 
-        // Crece y Florece
-        $await(tree.grow());
-        $await(tree.flower(2));
+        // Crecer el árbol
+        while (tree.canGrow()) {
+            tree.grow();
+            $await(Jscex.Async.sleep(10));
+        }
+
+        // Florecer - añadir flores gradualmente
+        while (tree.bloomsCache.length > 0) {
+            tree.flower(2);
+            $await(Jscex.Async.sleep(10));
+        }
         
-        // ¡IMPORTANTE! AQUÍ PARAMOS LA ANIMACIÓN.
-        // En el código original había un ciclo infinito de "move" y "jump"
-        // que borraba la pantalla. Lo hemos quitado para que se quede QUIETO y visible.
-        
-        // Solo mantenemos un ciclo suave de movimiento de hojas si lo deseas, 
-        // pero para asegurar que no desaparezca, terminamos aquí.
+        // ¡FIN! El árbol queda estático y visible.
+        // NO hay ciclos de jump() o move() que borren el canvas.
+        console.log("Árbol completado - quedará estático");
     }));
 
     runAsync().start();
