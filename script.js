@@ -137,28 +137,26 @@ function mostrarFinal() {
     document.getElementById("pantalla-final").classList.remove("hidden");
     document.getElementById("pantalla-final").classList.add("activa");
 
-    // Limpieza de decoración
     clearInterval(decoracionInterval);
     document.getElementById('dynamic-bg').innerHTML = ""; 
-    document.getElementById('corners').style.display = 'none';
 
-    // --- CORRECCIÓN ÁRBOL: Retraso para asegurar que el canvas sea visible ---
+    // 1. ÁRBOL AUTO-GROW (Con pequeño delay para asegurar carga)
     setTimeout(() => {
         iniciarAnimacionArbol();
-    }, 500); // 500ms de espera
+    }, 500);
 
-    // Iniciar Slideshow
+    // 2. Slideshow
     iniciarSlideshow();
 
-    // AUDIO TAYLOR SWIFT (Segundo 98 con fade-in)
+    // 3. AUDIO TAYLOR SWIFT (98s -> 100s Fade)
     audioPlayer.src = "./assets/audio/love_story.mp3";
-    audioPlayer.currentTime = 98; 
+    audioPlayer.currentTime = 98; // 1 minuto 38 segundos
     audioPlayer.volume = 0;
     
     let playPromise = audioPlayer.play();
     if (playPromise !== undefined) {
         playPromise.then(_ => { 
-            hacerFadeInLento(); 
+            hacerFadeInLento(); // Subir volumen en 2 segundos
             setTimeout(revelarPropuesta, 20000); 
         })
         .catch(e => { setTimeout(revelarPropuesta, 3000); });
@@ -203,7 +201,7 @@ function aceptarPropuesta() {
     setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍"); }, 1500);
 }
 
-/* --- ÁRBOL INTERACTIVO --- */
+/* --- ÁRBOL DEL AMOR (AUTO-GROW FIXED) --- */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
     var width = window.innerWidth;
@@ -224,12 +222,13 @@ function iniciarAnimacionArbol() {
     var foot = tree.footer;
     var hold = 1;
 
+    // Interacción Click (Sacudir)
     canvas.click(function(e) {
         canvas.addClass("shaking");
         setTimeout(function() { canvas.removeClass("shaking"); }, 500);
-        var offset = canvas.offset();
-        var x = e.pageX - offset.left;
-        var y = e.pageY - offset.top;
+        var offset = canvas.offset(), x, y;
+        x = e.pageX - offset.left;
+        y = e.pageY - offset.top;
         for (var i = 0; i < 5; i++) {
              var point = new Point(x, y);
              var figure = tree.seed.heart.figure;
@@ -239,12 +238,9 @@ function iniciarAnimacionArbol() {
         }
     });
 
+    // AUTO GROW SEQUENCE (Sin esperar click)
     var runAsync = eval(Jscex.compile("async", function () {
-        $await(seed.hover());
-        var hold = 0;
-        canvas.unbind("click");
-        canvas.unbind("mousemove");
-        canvas.removeClass('hand');
+        // seed.draw(); // Saltamos dibujar semilla para ir directo al árbol
         $await(foot.animate());
         $await(tree.grow());
         $await(tree.flow(20));
@@ -258,9 +254,34 @@ function iniciarAnimacionArbol() {
 /* --- UTILIDADES --- */
 function iniciarBarraTiempo(s) { const b = document.getElementById("barra-progreso"); b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = `width ${s}s linear`; b.style.width = "0%"; }
 function gestionarCambioDeAudio(ruta, inicio) { audioPlayer.volume = 0; audioPlayer.src = ruta; audioPlayer.currentTime = inicio; audioPlayer.play().then(hacerFadeIn).catch(e => console.log("Click necesario")); }
-function hacerFadeIn() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); }
-function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); }
+
+function hacerFadeIn() { 
+    clearInterval(fadeInterval); let vol = 0; 
+    fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); 
+}
+
+// Fade In Lento (2 segundos) para Taylor Swift
+function hacerFadeInLento() { 
+    clearInterval(fadeInterval); let vol = 0; 
+    fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); 
+}
+
 function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
 function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
-function lanzarConfetiGigante() { var end = Date.now() + 5000; (function frame() { confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 }); confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 }); if (Date.now() < end) requestAnimationFrame(frame); }()); }
+
+// Confeti Corazón Gigante Corregido
+function lanzarConfetiGigante() { 
+    var end = Date.now() + 5000;
+    (function frame() {
+        confetti({ 
+            particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, 
+            shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 
+        });
+        confetti({ 
+            particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, 
+            shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+    }()); 
+}
 function random(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
