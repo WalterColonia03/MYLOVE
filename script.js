@@ -6,8 +6,7 @@ const preguntas = [
         audio: "./assets/audio/nonsense.mp3", 
         segundoInicio: 36, duracion: 18,
         opciones: ["Mis ojos", "Mi sonrisa", "Todo tú"],
-        correcta: 2,
-        tematica: ["🎵", "💿", "💋", "✨"]
+        correcta: 2, tematica: ["🎵", "💿", "💋", "✨"]
     },
     {
         pregunta: "¿Dónde fue nuestra primera cita perfecta?",
@@ -15,8 +14,7 @@ const preguntas = [
         audio: "./assets/audio/just_one_day.mp3", 
         segundoInicio: 66, duracion: 12,      
         opciones: ["Cine", "Parque", "Comiendo"],
-        correcta: 1,
-        tematica: ["🍜", "🎬", "🌳", "💑"]
+        correcta: 1, tematica: ["🍜", "🎬", "🌳", "💑"]
     },
     {
         pregunta: "¿Qué planes tengo para nuestro futuro?",
@@ -24,8 +22,7 @@ const preguntas = [
         audio: "./assets/audio/paper_rings.mp3", 
         segundoInicio: 36, duracion: 16,      
         opciones: ["Viajar juntos", "Adoptar gatitos", "Casarnos"],
-        correcta: 2,
-        tematica: ["💍", "✈️", "🐱", "🏠"]
+        correcta: 2, tematica: ["💍", "✈️", "🐱", "🏠"]
     },
     {
         pregunta: "¿Qué siento cuando estoy contigo?",
@@ -33,8 +30,7 @@ const preguntas = [
         audio: "./assets/audio/iris.mp3", 
         segundoInicio: 61, duracion: 14,      
         opciones: ["Paz", "Que el mundo desaparece", "Hambre"],
-        correcta: 1,
-        tematica: ["❤️‍🔥", "🥺", "☁️", "✨"]
+        correcta: 1, tematica: ["❤️‍🔥", "🥺", "☁️", "✨"]
     },
     {
         pregunta: "¿Qué soy yo para ti?",
@@ -42,8 +38,7 @@ const preguntas = [
         audio: "./assets/audio/magic_shop.mp3", 
         segundoInicio: 65, duracion: 15,      
         opciones: ["Tu novio", "Tu Magic Shop", "Tu fan #1"],
-        correcta: 1,
-        tematica: ["🔮", "🗝️", "🛡️", "💜"]
+        correcta: 1, tematica: ["🔮", "🗝️", "🛡️", "💜"]
     }
 ];
 
@@ -58,7 +53,7 @@ let audioPlayer = document.getElementById("musica-fondo");
 let fadeInterval;
 let decoracionInterval;
 
-/* --- INICIO --- */
+// INICIALIZACIÓN
 preguntas.forEach(p => { let a = new Audio(); a.src = p.audio; a.preload = "auto"; });
 actualizarFondoDinamico(["❤️", "🌷", "✨"]); 
 
@@ -108,6 +103,7 @@ function verificarRespuesta(elegida, correcta, btn) {
 
 function actualizarFondoDinamico(emojis) {
     const bg = document.getElementById('dynamic-bg');
+    if(!bg) return;
     clearInterval(decoracionInterval); 
     bg.innerHTML = ""; 
 
@@ -126,11 +122,11 @@ function actualizarFondoDinamico(emojis) {
         bg.appendChild(div);
         setTimeout(() => div.remove(), 10000);
     };
-    decoracionInterval = setInterval(crearElemento, 500);
-    for(let i=0; i<10; i++) crearElemento();
+    decoracionInterval = setInterval(crearElemento, 600);
+    for(let i=0; i<5; i++) crearElemento();
 }
 
-/* --- MOSTRAR FINAL (ÁRBOL AUTOMÁTICO) --- */
+/* --- MOSTRAR FINAL --- */
 function mostrarFinal() {
     document.getElementById("pantalla-quiz").classList.remove("activa");
     document.getElementById("pantalla-quiz").classList.add("hidden");
@@ -138,11 +134,11 @@ function mostrarFinal() {
     document.getElementById("pantalla-final").classList.add("activa");
 
     clearInterval(decoracionInterval);
-    document.getElementById('dynamic-bg').innerHTML = ""; 
-    document.getElementById('corners').style.display = 'none';
+    const bg = document.getElementById('dynamic-bg'); if(bg) bg.innerHTML = ""; 
+    const c = document.getElementById('corners'); if(c) c.style.display = 'none';
 
     // 1. ÁRBOL (Delay de seguridad)
-    setTimeout(() => { iniciarAnimacionArbol(); }, 500);
+    setTimeout(() => { iniciarAnimacionArbol(); }, 300);
 
     // 2. Slideshow
     iniciarSlideshow();
@@ -156,10 +152,13 @@ function mostrarFinal() {
     if (playPromise !== undefined) {
         playPromise.then(_ => { 
             hacerFadeInLento(); 
-            // Esperamos 10 segundos a que crezca el árbol para mostrar la pregunta
+            // Esperamos 10s para mostrar pregunta
             setTimeout(revelarPropuesta, 10000); 
         })
-        .catch(e => { setTimeout(revelarPropuesta, 5000); });
+        .catch(e => { 
+            console.log("Audio autoplay bloqueado, esperando click");
+            setTimeout(revelarPropuesta, 5000); // Si falla audio, mostrar antes
+        });
     } else {
         setTimeout(revelarPropuesta, 5000);
     }
@@ -176,6 +175,7 @@ function revelarPropuesta() {
 
 function iniciarSlideshow() {
     const contenedor = document.getElementById("slideshow");
+    if(!contenedor) return;
     contenedor.innerHTML = ""; 
     fotosFinales.forEach((src, i) => {
         const img = document.createElement("img");
@@ -185,8 +185,8 @@ function iniciarSlideshow() {
         contenedor.appendChild(img);
     });
     let idx = 0;
-    const slides = document.querySelectorAll(".slide-foto");
     setInterval(() => {
+        const slides = document.querySelectorAll(".slide-foto");
         if(slides.length>0){
             slides[idx].classList.remove("active");
             idx = (idx + 1) % slides.length;
@@ -198,21 +198,30 @@ function iniciarSlideshow() {
 function aceptarPropuesta() {
     lanzarConfetiGigante();
     audioPlayer.volume = 1.0; 
-    setTimeout(() => { alert("¡SABÍA QUE DIRÍAS QUE SÍ! ❤️💍\nTe amo infinitamente."); }, 1500);
+    setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍"); }, 1500);
 }
 
-/* --- LÓGICA DEL ÁRBOL REPARADA (BUCLES RESTAURADOS) --- */
+/* --- ÁRBOL DEL AMOR (OPTIMIZADO PARA RETINA/MOVIL) --- */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
-    // Ajuste: usar window.innerWidth para asegurar pantalla completa
+    
+    if (!canvas[0] || !canvas[0].getContext) return;
+
+    var ctx = canvas[0].getContext("2d");
+    var dpr = window.devicePixelRatio || 1;
+    
     var width = window.innerWidth;
     var height = window.innerHeight;
-
-    canvas.attr("width", width);
-    canvas.attr("height", height);
+    
+    // Ajuste HD para Android/Retina
+    canvas.attr("width", width * dpr);
+    canvas.attr("height", height * dpr);
+    canvas.css("width", width + "px");
+    canvas.css("height", height + "px");
+    ctx.scale(dpr, dpr);
 
     var opts = {
-        seed: { x: width / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 }, 
+        seed: { x: width / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 },
         branch: [ [535, 680, 570, 250, 500, 200, 30, 100, [ [540, 500, 455, 417, 340, 400, 13, 100, [ [450, 435, 434, 430, 394, 395, 2, 40] ]], [550, 445, 600, 356, 680, 345, 12, 100, [ [578, 400, 648, 409, 661, 426, 3, 80] ]], [539, 281, 537, 248, 534, 217, 3, 40], [546, 397, 413, 247, 328, 244, 9, 80, [ [427, 286, 383, 253, 371, 205, 2, 40], [498, 345, 435, 315, 395, 330, 4, 60] ]], [546, 357, 608, 252, 678, 221, 6, 100, [ [590, 293, 646, 277, 648, 271, 2, 80] ]] ]] ],
         bloom: { num: 700, width: 1080, height: 650 },
         footer: { width: 1200, height: 5, speed: 10 }
@@ -223,61 +232,67 @@ function iniciarAnimacionArbol() {
     var foot = tree.footer;
     var hold = 1;
 
-    // Click para sacudir
+    // Click: Sacudir y Flores
     canvas.click(function(e) {
         canvas.addClass("shaking");
         setTimeout(function() { canvas.removeClass("shaking"); }, 500);
-        var offset = canvas.offset(), x, y;
-        x = e.pageX - offset.left;
-        y = e.pageY - offset.top;
+        
+        // Ajuste coordenadas click en canvas escalado
+        var offset = canvas.offset();
+        var x = e.pageX - offset.left;
+        var y = e.pageY - offset.top;
+        
         for (var i = 0; i < 5; i++) {
              var point = new Point(x, y);
-             var figure = tree.seed.heart.figure;
-             var color = 'rgb(255,' + random(0, 255) + ',' + random(0, 255) + ')';
-             var newBloom = new Bloom(tree, point, figure, color, 1, null, 1, new Point(x + random(-100,100), height + 100), random(100, 300));
+             var newBloom = new Bloom(tree, point, tree.seed.heart.figure, 'rgb(255,0,0)', 1, null, 1, new Point(x, height), 300);
              tree.addBloom(newBloom);
         }
     });
 
-    // --- SECUENCIA DE ANIMACIÓN AUTOMÁTICA (ARREGLADA) ---
-    var growAnimate = eval(Jscex.compile("async", function () {
-        do {
-            tree.grow(); // Crece un paso
-            $await(Jscex.Async.sleep(10)); // Espera 10ms
-        } while (tree.canGrow()); // Repite mientras pueda crecer
-    }));
-
-    var flowAnimate = eval(Jscex.compile("async", function () {
-        do {
-            tree.flower(2); // Florece 2 flores
-            $await(Jscex.Async.sleep(10)); // Espera
-        } while (tree.canFlower()); // Repite
-    }));
-
+    // Secuencia Automática
     var runAsync = eval(Jscex.compile("async", function () {
-        // start
-        $await(growAnimate()); // Esperar a que termine de crecer
-        $await(flowAnimate()); // Esperar a que termine de florecer
+        $await(foot.animate());
+        $await(tree.grow());
+        $await(tree.flower(2));
     }));
 
     runAsync().start();
 }
 
 /* --- UTILIDADES --- */
-function iniciarBarraTiempo(s) { const b = document.getElementById("barra-progreso"); b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = `width ${s}s linear`; b.style.width = "0%"; }
-function gestionarCambioDeAudio(ruta, inicio) { audioPlayer.volume = 0; audioPlayer.src = ruta; audioPlayer.currentTime = inicio; audioPlayer.play().then(hacerFadeIn).catch(e => console.log("Click necesario")); }
+function iniciarBarraTiempo(s) { const b = document.getElementById("barra-progreso"); if(b){ b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = `width ${s}s linear`; b.style.width = "0%"; }}
+function gestionarCambioDeAudio(ruta, inicio) { audioPlayer.volume = 0; audioPlayer.src = ruta; audioPlayer.currentTime = inicio; audioPlayer.play().then(hacerFadeIn).catch(e => console.log("...")); }
 function hacerFadeIn() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); }
 function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); }
 function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
 function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
 
+// CONFETI CORAZÓN (Con Fallback de Emojis)
 function lanzarConfetiGigante() { 
     var end = Date.now() + 5000;
-    var colors = ['#ff0000', '#ff4d6d', '#ffffff'];
-    (function frame() {
-        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, shapes: ['heart'], colors: colors, scalar: 3 }); // Tamaño 3 = grande
-        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, shapes: ['heart'], colors: colors, scalar: 3 });
-        if (Date.now() < end) requestAnimationFrame(frame);
-    }()); 
+    
+    // Intentamos usar shapes: ['heart']
+    try {
+        (function frame() {
+            confetti({ 
+                particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, 
+                shapes: ['heart'], colors: ['#ff0000', '#ff4d6d'], scalar: 4 
+            });
+            confetti({ 
+                particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, 
+                shapes: ['heart'], colors: ['#ff0000', '#ff4d6d'], scalar: 4 
+            });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }()); 
+    } catch(e) {
+        // Fallback si la librería falla: Usar emojis
+        (function frame() {
+            confetti({ 
+                particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, 
+                shapes: ['circle'], colors: ['#ff0000'], scalar: 2
+            });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }()); 
+    }
 }
 function random(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
