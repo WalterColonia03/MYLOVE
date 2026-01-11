@@ -10,12 +10,12 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* El Canvas debe estar detrás del texto */
+        /* El Canvas del Árbol */
         #canvas-tree {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; /* Nivel 1: Encima del fondo */
-            pointer-events: auto; /* Permite click para sacudir */
+            z-index: 1; 
+            pointer-events: auto; /* Permite interacción */
             cursor: pointer;
         }
     </style>
@@ -46,7 +46,6 @@
     </section>
 
     <section id="pantalla-final" class="pantalla hidden">
-        
         <canvas id="canvas-tree"></canvas>
 
         <div class="final-content" style="z-index: 10;">
@@ -57,7 +56,7 @@
             <div id="propuesta-container" class="propuesta-textos invisible">
                 <h1 class="titulo-final">¿Quieres ser mi novia?</h1>
                 <button id="btn-propuesta" class="btn-corazon" onclick="aceptarPropuesta()">
-                    Si mi amor, quiero ser tu novia,<br>esposa y madre de tus hijos ❤️
+                    SÍ ACEPTO SER TU NOVIA ❤️
                 </button>
             </div>
         </div>
@@ -84,7 +83,6 @@
     <script src="index_files/jscex-async-powerpack.min.js"></script>
     <script src="index_files/functions.js" charset="utf-8"></script>
     <script src="index_files/love.js" charset="utf-8"></script>
-
     <script src="script.js"></script>
 </body>
 </html>

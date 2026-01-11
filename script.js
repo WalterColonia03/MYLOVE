@@ -139,29 +139,29 @@ function mostrarFinal() {
 
     clearInterval(decoracionInterval);
     document.getElementById('dynamic-bg').innerHTML = ""; 
+    document.getElementById('corners').style.display = 'none';
 
-    // 1. ÁRBOL AUTO-GROW (Con pequeño delay para asegurar carga)
-    setTimeout(() => {
-        iniciarAnimacionArbol();
-    }, 500);
+    // 1. ÁRBOL (Delay pequeño)
+    setTimeout(() => { iniciarAnimacionArbol(); }, 500);
 
     // 2. Slideshow
     iniciarSlideshow();
 
     // 3. AUDIO TAYLOR SWIFT (98s -> 100s Fade)
     audioPlayer.src = "./assets/audio/love_story.mp3";
-    audioPlayer.currentTime = 98; // 1 minuto 38 segundos
+    audioPlayer.currentTime = 98; 
     audioPlayer.volume = 0;
     
     let playPromise = audioPlayer.play();
     if (playPromise !== undefined) {
         playPromise.then(_ => { 
-            hacerFadeInLento(); // Subir volumen en 2 segundos
-            setTimeout(revelarPropuesta, 20000); 
+            hacerFadeInLento(); 
+            // Esperamos a que el árbol crezca un poco para mostrar la pregunta al lado
+            setTimeout(revelarPropuesta, 12000); 
         })
-        .catch(e => { setTimeout(revelarPropuesta, 3000); });
+        .catch(e => { setTimeout(revelarPropuesta, 5000); });
     } else {
-        setTimeout(revelarPropuesta, 3000);
+        setTimeout(revelarPropuesta, 5000);
     }
 }
 
@@ -198,10 +198,10 @@ function iniciarSlideshow() {
 function aceptarPropuesta() {
     lanzarConfetiGigante();
     audioPlayer.volume = 1.0; 
-    setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍"); }, 1500);
+    setTimeout(() => { alert("¡SABÍA QUE DIRÍAS QUE SÍ! ❤️💍\nTe amo infinitamente."); }, 1500);
 }
 
-/* --- ÁRBOL DEL AMOR (AUTO-GROW FIXED) --- */
+/* --- ÁRBOL INTERACTIVO (SIN MOVIMIENTOS BRUSCOS) --- */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
     var width = window.innerWidth;
@@ -211,7 +211,7 @@ function iniciarAnimacionArbol() {
     canvas.attr("height", height);
 
     var opts = {
-        seed: { x: width / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 },
+        seed: { x: width / 2 - 150, color: "rgb(190, 26, 37)", scale: 2 }, // Movemos el árbol a la IZQUIERDA (-150)
         branch: [ [535, 680, 570, 250, 500, 200, 30, 100, [ [540, 500, 455, 417, 340, 400, 13, 100, [ [450, 435, 434, 430, 394, 395, 2, 40] ]], [550, 445, 600, 356, 680, 345, 12, 100, [ [578, 400, 648, 409, 661, 426, 3, 80] ]], [539, 281, 537, 248, 534, 217, 3, 40], [546, 397, 413, 247, 328, 244, 9, 80, [ [427, 286, 383, 253, 371, 205, 2, 40], [498, 345, 435, 315, 395, 330, 4, 60] ]], [546, 357, 608, 252, 678, 221, 6, 100, [ [590, 293, 646, 277, 648, 271, 2, 80] ]] ]] ],
         bloom: { num: 700, width: 1080, height: 650 },
         footer: { width: 1200, height: 5, speed: 10 }
@@ -222,13 +222,12 @@ function iniciarAnimacionArbol() {
     var foot = tree.footer;
     var hold = 1;
 
-    // Interacción Click (Sacudir)
     canvas.click(function(e) {
         canvas.addClass("shaking");
         setTimeout(function() { canvas.removeClass("shaking"); }, 500);
-        var offset = canvas.offset(), x, y;
-        x = e.pageX - offset.left;
-        y = e.pageY - offset.top;
+        var offset = canvas.offset();
+        var x = e.pageX - offset.left;
+        var y = e.pageY - offset.top;
         for (var i = 0; i < 5; i++) {
              var point = new Point(x, y);
              var figure = tree.seed.heart.figure;
@@ -238,15 +237,18 @@ function iniciarAnimacionArbol() {
         }
     });
 
-    // AUTO GROW SEQUENCE (Sin esperar click)
     var runAsync = eval(Jscex.compile("async", function () {
-        // seed.draw(); // Saltamos dibujar semilla para ir directo al árbol
+        $await(seed.hover());
+        var hold = 0;
+        canvas.unbind("click");
+        canvas.unbind("mousemove");
+        canvas.removeClass('hand');
         $await(foot.animate());
         $await(tree.grow());
         $await(tree.flow(20));
-        $await(tree.move("swing", 500));
-        $await(tree.plumb());
-        $await(tree.jump());
+        // ELIMINÉ: $await(tree.move("swing", 500)); // Esto movía el árbol
+        // ELIMINÉ: $await(tree.plumb());
+        // ELIMINÉ: $await(tree.jump()); // Esto limpiaba el canvas
     }));
     runAsync().start();
 }
@@ -254,32 +256,36 @@ function iniciarAnimacionArbol() {
 /* --- UTILIDADES --- */
 function iniciarBarraTiempo(s) { const b = document.getElementById("barra-progreso"); b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = `width ${s}s linear`; b.style.width = "0%"; }
 function gestionarCambioDeAudio(ruta, inicio) { audioPlayer.volume = 0; audioPlayer.src = ruta; audioPlayer.currentTime = inicio; audioPlayer.play().then(hacerFadeIn).catch(e => console.log("Click necesario")); }
-
-function hacerFadeIn() { 
-    clearInterval(fadeInterval); let vol = 0; 
-    fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); 
-}
-
-// Fade In Lento (2 segundos) para Taylor Swift
-function hacerFadeInLento() { 
-    clearInterval(fadeInterval); let vol = 0; 
-    fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); 
-}
-
+function hacerFadeIn() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); }
+function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); }
 function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
 function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
 
-// Confeti Corazón Gigante Corregido
+// Confeti Corazón GIGANTE Y REAL
 function lanzarConfetiGigante() { 
     var end = Date.now() + 5000;
+    var colors = ['#ff0000', '#ff4d6d', '#ffffff'];
+
     (function frame() {
         confetti({ 
-            particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, 
-            shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 
+            particleCount: 5, 
+            angle: 60, 
+            spread: 55, 
+            origin: { x: 0 }, 
+            shapes: ['heart'], // Forma corazón
+            colors: colors,
+            scalar: 2, // Tamaño reducido para que no se pixelee tanto, pero visible
+            ticks: 200 // Duran más en el aire
         });
         confetti({ 
-            particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, 
-            shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 
+            particleCount: 5, 
+            angle: 120, 
+            spread: 55, 
+            origin: { x: 1 }, 
+            shapes: ['heart'], 
+            colors: colors,
+            scalar: 2,
+            ticks: 200
         });
         if (Date.now() < end) requestAnimationFrame(frame);
     }()); 
