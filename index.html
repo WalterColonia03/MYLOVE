@@ -6,27 +6,39 @@
     <title>Para el amor de mi vida ❤️</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
+        /* ESTILOS CRÍTICOS PARA EL CANVAS */
+        /* Lo ponemos aquí para asegurar prioridad máxima */
         #canvas-tree {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; pointer-events: auto; cursor: pointer;
+            position: fixed; /* Fijo para cubrir toda la pantalla */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Nivel 1: Fondo */
+            pointer-events: auto; /* Permite tocar para sacudir */
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
+
     <div id="dynamic-bg" class="background-decorations"></div>
+
     <div id="corners" class="corners-container">
-        <div class="corner-decoration top-left">🌷✨</div>
-        <div class="corner-decoration top-right">✨🌷</div>
-        <div class="corner-decoration bottom-left">🌷💖</div>
-        <div class="corner-decoration bottom-right">💖🌷</div>
+        <div class="corner-decoration top-left">🍂✨</div>
+        <div class="corner-decoration top-right">✨🍁</div>
+        <div class="corner-decoration bottom-left">🍁🧡</div>
+        <div class="corner-decoration bottom-right">🧡🍂</div>
     </div>
 
     <section id="pantalla-intro" class="pantalla activa">
         <div class="contenido-centro glass-card-intro">
             <h1 class="titulo-animado">Hola mi vida ❤️</h1>
-            <p class="subtitulo">Tengo algo especial para ti...</p>
+            <p class="subtitulo">Tengo algo muy especial para ti...</p>
             <button class="btn-inicio" onclick="iniciarExperiencia()">VER SORPRESA ✨</button>
         </div>
     </section>
@@ -37,17 +49,22 @@
                 <div id="barra-progreso" class="barra-progreso"></div>
             </div>
             <h2 id="pregunta-texto" class="pregunta">Cargando...</h2>
-            <div class="imagen-container"><img id="pregunta-imagen" src="" alt="Foto"></div>
+            <div class="imagen-container">
+                <img id="pregunta-imagen" src="" alt="Foto">
+            </div>
             <div id="opciones-container" class="opciones-grid"></div>
         </div>
     </section>
 
     <section id="pantalla-final" class="pantalla hidden">
-        <canvas id="canvas-tree"></canvas>
+        
+        <canvas id="canvas-tree" width="1100" height="680"></canvas>
+
         <div class="final-content" style="z-index: 20;">
             <div id="slideshow" class="slideshow-container">
                 <img src="./assets/img/collage_final.png" class="slide-foto active">
             </div>
+
             <div id="propuesta-container" class="propuesta-textos invisible">
                 <h1 class="titulo-final">¿Quieres ser mi novia?</h1>
                 <button id="btn-propuesta" class="btn-corazon" onclick="aceptarPropuesta()">
@@ -55,6 +72,7 @@
                 </button>
             </div>
         </div>
+
         <div class="bts-audience">
             <img src="./assets/img/1_RM.png" class="tiny-member member-side">
             <img src="./assets/img/2_JIN.png" class="tiny-member member-side">
@@ -77,6 +95,7 @@
     <script src="index_files/jscex-async-powerpack.min.js"></script>
     <script src="index_files/functions.js" charset="utf-8"></script>
     <script src="index_files/love.js" charset="utf-8"></script>
+
     <script src="script.js"></script>
 </body>
 </html>
