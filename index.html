@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para el amor de mi vida ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Estilos críticos para el Canvas del Árbol */
+        #canvas-tree {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; 
+            /* Importante: pointer-events auto para que detecte el click de ella */
+            pointer-events: auto; 
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dynamic-bg" class="background-decorations"></div>
+
+    <div id="corners" class="corners-container">
+        <div class="corner-decoration top-left">🌷✨</div>
+        <div class="corner-decoration top-right">✨🌷</div>
+        <div class="corner-decoration bottom-left">🌷💖</div>
+        <div class="corner-decoration bottom-right">💖🌷</div>
+    </div>
+
+    <section id="pantalla-intro" class="pantalla activa">
+        <div class="contenido-centro glass-card-intro">
+            <h1 class="titulo-animado">Hola mi vida ❤️</h1>
+            <p class="subtitulo">Prepárate, hoy no es un día cualquiera...</p>
+            <button class="btn-inicio" onclick="iniciarExperiencia()">COMENZAR LA MAGIA ✨</button>
+        </div>
+    </section>
+
+    <section id="pantalla-quiz" class="pantalla hidden">
+        <div class="quiz-card glass-card">
+            <div class="barra-tiempo-container">
+                <div id="barra-progreso" class="barra-progreso"></div>
+            </div>
+            <h2 id="pregunta-texto" class="pregunta">Cargando...</h2>
+            <div class="imagen-container">
+                <img id="pregunta-imagen" src="" alt="Foto">
+            </div>
+            <div id="opciones-container" class="opciones-grid"></div>
+        </div>
+    </section>
+
+    <section id="pantalla-final" class="pantalla hidden">
+        
+        <canvas id="canvas-tree" width="1100" height="680"></canvas>
+
+        <div class="final-content" style="z-index: 10;">
+            <div id="slideshow" class="slideshow-container">
+                <img src="./assets/img/collage_final.png" class="slide-foto active">
+            </div>
+
+            <div id="propuesta-container" class="propuesta-textos invisible">
+                <h1 class="titulo-final">¿Quieres ser mi novia?</h1>
+                <button id="btn-propuesta" class="btn-corazon" onclick="aceptarPropuesta()">
+                    Si mi amor, quiero ser tu novia,<br>esposa y madre de tus hijos ❤️
+                </button>
+            </div>
+        </div>
+
+        <div class="bts-audience">
+            <img src="./assets/img/1_RM.png" class="tiny-member member-side member-float-1">
+            <img src="./assets/img/2_JIN.png" class="tiny-member member-side member-float-2">
+            <img src="./assets/img/3_SUGA.png" class="tiny-member member-side member-float-3">
+            <img src="./assets/img/7_Jungkook.png" class="tiny-member member-center">
+            <img src="./assets/img/4_J-Hope.png" class="tiny-member member-side member-float-1">
+            <img src="./assets/img/5_jimin.png" class="tiny-member member-side member-float-2">
+            <img src="./assets/img/6_V.png" class="tiny-member member-side member-float-3">
+        </div>
+    </section>
+
+    <audio id="musica-fondo" loop></audio>
+
+    <script src="index_files/jquery.min.js"></script>
+    <script src="index_files/jscex.min.js"></script>
+    <script src="index_files/jscex-parser.js"></script>
+    <script src="index_files/jscex-jit.js"></script>
+    <script src="index_files/jscex-builderbase.min.js"></script>
+    <script src="index_files/jscex-async.min.js"></script>
+    <script src="index_files/jscex-async-powerpack.min.js"></script>
+    <script src="index_files/functions.js" charset="utf-8"></script>
+    <script src="index_files/love.js" charset="utf-8"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>
