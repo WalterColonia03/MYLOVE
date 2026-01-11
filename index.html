@@ -6,23 +6,22 @@
     <title>Para el amor de mi vida ❤️</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
     <style>
-        /* EL ÁRBOL SERÁ EL FONDO INTERACTIVO */
         #canvas-tree {
-            position: fixed; /* Fijo para cubrir todo */
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; /* Detrás del contenido, encima del fondo */
-            pointer-events: auto; /* Para poder tocarlo */
-            cursor: pointer;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: auto; cursor: pointer;
         }
     </style>
 </head>
 <body>
-
     <div id="dynamic-bg" class="background-decorations"></div>
+    <div id="corners" class="corners-container">
+        <div class="corner-decoration top-left">🌷✨</div>
+        <div class="corner-decoration top-right">✨🌷</div>
+        <div class="corner-decoration bottom-left">🌷💖</div>
+        <div class="corner-decoration bottom-right">💖🌷</div>
+    </div>
 
     <section id="pantalla-intro" class="pantalla activa">
         <div class="contenido-centro glass-card-intro">
@@ -38,21 +37,17 @@
                 <div id="barra-progreso" class="barra-progreso"></div>
             </div>
             <h2 id="pregunta-texto" class="pregunta">Cargando...</h2>
-            <div class="imagen-container">
-                <img id="pregunta-imagen" src="" alt="Foto">
-            </div>
+            <div class="imagen-container"><img id="pregunta-imagen" src="" alt="Foto"></div>
             <div id="opciones-container" class="opciones-grid"></div>
         </div>
     </section>
 
     <section id="pantalla-final" class="pantalla hidden">
         <canvas id="canvas-tree"></canvas>
-
         <div class="final-content" style="z-index: 20;">
             <div id="slideshow" class="slideshow-container">
                 <img src="./assets/img/collage_final.png" class="slide-foto active">
             </div>
-
             <div id="propuesta-container" class="propuesta-textos invisible">
                 <h1 class="titulo-final">¿Quieres ser mi novia?</h1>
                 <button id="btn-propuesta" class="btn-corazon" onclick="aceptarPropuesta()">
@@ -60,7 +55,6 @@
                 </button>
             </div>
         </div>
-
         <div class="bts-audience">
             <img src="./assets/img/1_RM.png" class="tiny-member member-side">
             <img src="./assets/img/2_JIN.png" class="tiny-member member-side">
@@ -83,7 +77,6 @@
     <script src="index_files/jscex-async-powerpack.min.js"></script>
     <script src="index_files/functions.js" charset="utf-8"></script>
     <script src="index_files/love.js" charset="utf-8"></script>
-
     <script src="script.js"></script>
 </body>
 </html>
