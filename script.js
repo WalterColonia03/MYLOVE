@@ -48,13 +48,13 @@ const fotosFinales = [
     "./assets/img/collage_final.png" 
 ];
 
-// VARIABLES
 let indiceActual = 0;
 let audioPlayer = document.getElementById("musica-fondo");
 let fadeInterval;
 let decoracionInterval;
 
-// INICIO
+/* --- INICIO --- */
+// Precarga de audio
 preguntas.forEach(p => { let a = new Audio(); a.src = p.audio; a.preload = "auto"; });
 actualizarFondoDinamico(["❤️", "🌷", "✨"]); 
 
@@ -127,24 +127,27 @@ function actualizarFondoDinamico(emojis) {
     for(let i=0; i<5; i++) crearElemento();
 }
 
-/* --- MOSTRAR FINAL (CORREGIDO) --- */
+/* --- MOSTRAR FINAL --- */
 function mostrarFinal() {
     document.getElementById("pantalla-quiz").classList.remove("activa");
     document.getElementById("pantalla-quiz").classList.add("hidden");
     document.getElementById("pantalla-final").classList.remove("hidden");
     document.getElementById("pantalla-final").classList.add("activa");
 
+    // Limpieza
     clearInterval(decoracionInterval);
     const bg = document.getElementById('dynamic-bg'); if(bg) bg.innerHTML = ""; 
     const corners = document.getElementById('corners'); if(corners) corners.style.display = 'none';
 
-    // 1. ÁRBOL (Delay de seguridad)
-    setTimeout(() => { iniciarAnimacionArbol(); }, 200);
+    // 1. ÁRBOL: Iniciamos con un pequeño retraso
+    setTimeout(() => {
+        iniciarAnimacionArbol();
+    }, 100);
 
-    // 2. SLIDESHOW
+    // 2. Slideshow
     iniciarSlideshow();
 
-    // 3. AUDIO TAYLOR SWIFT (98s -> 100s Fade)
+    // 3. Audio Final
     audioPlayer.src = "./assets/audio/love_story.mp3";
     audioPlayer.currentTime = 98; 
     audioPlayer.volume = 0;
@@ -153,7 +156,8 @@ function mostrarFinal() {
     if (playPromise !== undefined) {
         playPromise.then(_ => { 
             hacerFadeInLento(); 
-            setTimeout(revelarPropuesta, 10000); // 10s delay para pregunta
+            // Mostramos la pregunta después de 10 segundos
+            setTimeout(revelarPropuesta, 10000); 
         })
         .catch(e => { setTimeout(revelarPropuesta, 5000); });
     } else {
@@ -195,53 +199,75 @@ function iniciarSlideshow() {
 function aceptarPropuesta() {
     lanzarConfetiGigante();
     audioPlayer.volume = 1.0; 
-    setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍\nTe amo infinitamente."); }, 1500);
+    setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍"); }, 1500);
 }
 
-/* --- ÁRBOL DEL AMOR (HACKEADO PARA FUNCIONAR SIEMPRE) --- */
+/* --- LÓGICA DEL ÁRBOL CORREGIDA (SOLO CRECER, NO BORRAR) --- */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
-    if (!canvas[0] || !canvas[0].getContext) return;
-
-    // TRUCO MAESTRO: Forzamos la resolución interna que el árbol espera
-    // No importa el tamaño del celular, el árbol cree que está en una pantalla HD
-    canvas.attr("width", 1100);
-    canvas.attr("height", 680);
     
-    // Luego, en CSS, forzamos que se estire para llenar la pantalla (ver style.css)
-    canvas.css("width", "100%");
-    canvas.css("height", "100%");
+    if (!canvas[0] || !canvas[0].getContext) {
+        console.error("Canvas no encontrado");
+        return;
+    }
 
-    // Configuración del Árbol
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    
+    canvas.attr("width", width);
+    canvas.attr("height", height);
+
     var opts = {
-        seed: { x: 1100 / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 },
+        seed: { x: width / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 },
         branch: [ [535, 680, 570, 250, 500, 200, 30, 100, [ [540, 500, 455, 417, 340, 400, 13, 100, [ [450, 435, 434, 430, 394, 395, 2, 40] ]], [550, 445, 600, 356, 680, 345, 12, 100, [ [578, 400, 648, 409, 661, 426, 3, 80] ]], [539, 281, 537, 248, 534, 217, 3, 40], [546, 397, 413, 247, 328, 244, 9, 80, [ [427, 286, 383, 253, 371, 205, 2, 40], [498, 345, 435, 315, 395, 330, 4, 60] ]], [546, 357, 608, 252, 678, 221, 6, 100, [ [590, 293, 646, 277, 648, 271, 2, 80] ]] ]] ],
         bloom: { num: 700, width: 1080, height: 650 },
         footer: { width: 1200, height: 5, speed: 10 }
     }
 
-    var tree = new Tree(canvas[0], 1100, 680, opts);
+    var tree = new Tree(canvas[0], width, height, opts);
     var seed = tree.seed;
     var foot = tree.footer;
     var hold = 1;
 
-    // Click Interactividad (Sacudir)
+    // Click: Sacudir
     canvas.click(function(e) {
         canvas.addClass("shaking");
         setTimeout(function() { canvas.removeClass("shaking"); }, 500);
-        // Coordenadas relativas al escalado CSS
-        // No necesitamos precisión milimétrica para las flores extra
-        var newBloom = new Bloom(tree, new Point(e.offsetX || e.pageX, e.offsetY || e.pageY), tree.seed.heart.figure, 'rgb(255,0,0)', 1, null, 1, new Point(e.offsetX, 680), 300);
-        tree.addBloom(newBloom);
+        var offset = canvas.offset();
+        var x = e.pageX - offset.left;
+        var y = e.pageY - offset.top;
+        for (var i = 0; i < 5; i++) {
+             var point = new Point(x, y);
+             var newBloom = new Bloom(tree, point, tree.seed.heart.figure, 'rgb(255,0,0)', 1, null, 1, new Point(x, height), 300);
+             tree.addBloom(newBloom);
+        }
     });
 
-    // --- SECUENCIA AUTOMÁTICA (BYPASS SEED) ---
-    // Nos saltamos la animación de la semilla cayendo porque suele fallar
-    // Vamos directo a dibujar el suelo y crecer el árbol.
+    // --- AQUÍ ESTÁ LA SOLUCIÓN: SECUENCIA SIN "JUMP" NI "MOVE" ---
     var runAsync = eval(Jscex.compile("async", function () {
-        $await(foot.animate()); // Suelo
-        $await(tree.grow());    // Crecer
-        $await(tree.flower(2)); // Flores
+        $await(seed.hover()); // Inicia Semilla
+        
+        // Cae al suelo
+        while (seed.canScale()) {
+            seed.scale(0.95);
+            $await(Jscex.Async.sleep(10));
+        }
+        while (seed.canMove()) {
+            seed.move(0, 2);
+            foot.draw();
+            $await(Jscex.Async.sleep(10));
+        }
+
+        // Crece y Florece
+        $await(tree.grow());
+        $await(tree.flower(2));
+        
+        // ¡IMPORTANTE! AQUÍ PARAMOS LA ANIMACIÓN.
+        // En el código original había un ciclo infinito de "move" y "jump"
+        // que borraba la pantalla. Lo hemos quitado para que se quede QUIETO y visible.
+        
+        // Solo mantenemos un ciclo suave de movimiento de hojas si lo deseas, 
+        // pero para asegurar que no desaparezca, terminamos aquí.
     }));
 
     runAsync().start();
@@ -255,11 +281,10 @@ function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInte
 function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
 function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
 
-// CONFETI CORAZÓN REAL
+// Confeti Corazón Grande
 function lanzarConfetiGigante() { 
     var end = Date.now() + 5000;
     (function frame() {
-        // Scalar 4 = Corazones grandes y visibles
         confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d'], scalar: 4 });
         confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d'], scalar: 4 });
         if (Date.now() < end) requestAnimationFrame(frame);
