@@ -59,7 +59,6 @@ let fadeInterval;
 let decoracionInterval;
 
 /* --- INICIO --- */
-// Precarga
 preguntas.forEach(p => { let a = new Audio(); a.src = p.audio; a.preload = "auto"; });
 actualizarFondoDinamico(["❤️", "🌷", "✨"]); 
 
@@ -138,30 +137,27 @@ function mostrarFinal() {
     document.getElementById("pantalla-final").classList.remove("hidden");
     document.getElementById("pantalla-final").classList.add("activa");
 
-    // Limpieza
+    // Limpieza de decoración
     clearInterval(decoracionInterval);
     document.getElementById('dynamic-bg').innerHTML = ""; 
     document.getElementById('corners').style.display = 'none';
 
-    // 1. Iniciar Árbol (con pequeño delay para asegurar que el canvas tenga tamaño)
+    // --- CORRECCIÓN ÁRBOL: Retraso para asegurar que el canvas sea visible ---
     setTimeout(() => {
         iniciarAnimacionArbol();
-    }, 100);
+    }, 500); // 500ms de espera
 
-    // 2. Slideshow
+    // Iniciar Slideshow
     iniciarSlideshow();
 
-    // 3. AUDIO TAYLOR SWIFT (CORREGIDO: 1:38 -> 1:40 Fade)
+    // AUDIO TAYLOR SWIFT (Segundo 98 con fade-in)
     audioPlayer.src = "./assets/audio/love_story.mp3";
-    
-    // Inicia en el segundo 98 (1:38)
     audioPlayer.currentTime = 98; 
-    audioPlayer.volume = 0; // Empieza mudo
+    audioPlayer.volume = 0;
     
     let playPromise = audioPlayer.play();
     if (playPromise !== undefined) {
         playPromise.then(_ => { 
-            // Hacemos Fade In lento (de 98s a 100s son 2000ms)
             hacerFadeInLento(); 
             setTimeout(revelarPropuesta, 20000); 
         })
@@ -209,10 +205,7 @@ function aceptarPropuesta() {
 
 /* --- ÁRBOL INTERACTIVO --- */
 function iniciarAnimacionArbol() {
-    // Usamos jQuery para compatibilidad con love.js
     var canvas = $('#canvas-tree');
-    
-    // IMPORTANTE: Forzamos el tamaño basado en la ventana
     var width = window.innerWidth;
     var height = window.innerHeight;
 
@@ -265,53 +258,9 @@ function iniciarAnimacionArbol() {
 /* --- UTILIDADES --- */
 function iniciarBarraTiempo(s) { const b = document.getElementById("barra-progreso"); b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = `width ${s}s linear`; b.style.width = "0%"; }
 function gestionarCambioDeAudio(ruta, inicio) { audioPlayer.volume = 0; audioPlayer.src = ruta; audioPlayer.currentTime = inicio; audioPlayer.play().then(hacerFadeIn).catch(e => console.log("Click necesario")); }
-
-function hacerFadeIn() { 
-    clearInterval(fadeInterval); let vol = 0; 
-    fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); 
-}
-
-// Fade In especial para Taylor Swift (2 segundos: de 98 a 100)
-function hacerFadeInLento() { 
-    clearInterval(fadeInterval); let vol = 0; 
-    // Subir 0.05 cada 100ms = 1.0 en 2000ms (2 segundos)
-    fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); 
-}
-
-function hacerFadeOut(cb) { 
-    clearInterval(fadeInterval); let vol = audioPlayer.volume; 
-    fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); 
-}
-
-function lanzarConfetiSimple() { 
-    confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); 
-}
-
-// Confeti Corazones Corregido
-function lanzarConfetiGigante() { 
-    var end = Date.now() + 5000;
-    (function frame() {
-        // Shapes: ['heart'] funciona, pero scalar debe ser grande
-        confetti({ 
-            particleCount: 7, 
-            angle: 60, 
-            spread: 55, 
-            origin: { x: 0 }, 
-            shapes: ['heart'], // <--- FORMA DE CORAZÓN
-            colors: ['#ff0000', '#ff4d6d', '#ffffff'], // Rojos y rosas
-            scalar: 4 // <--- TAMAÑO GIGANTE (Antes era 2 o 3, 4 se ve mejor)
-        });
-        confetti({ 
-            particleCount: 7, 
-            angle: 120, 
-            spread: 55, 
-            origin: { x: 1 }, 
-            shapes: ['heart'], 
-            colors: ['#ff0000', '#ff4d6d', '#ffffff'],
-            scalar: 4 
-        });
-        if (Date.now() < end) requestAnimationFrame(frame);
-    }()); 
-}
-
+function hacerFadeIn() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); }
+function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); }
+function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
+function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
+function lanzarConfetiGigante() { var end = Date.now() + 5000; (function frame() { confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 }); confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d', '#ffffff'], scalar: 4 }); if (Date.now() < end) requestAnimationFrame(frame); }()); }
 function random(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
