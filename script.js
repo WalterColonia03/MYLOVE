@@ -1,327 +1,587 @@
-/* --- CONFIGURACIÓN --- */
+/* === CONFIGURACIÓN === */
 const preguntas = [
     {
-        pregunta: "¿Qué es lo que más me gusta de tu cara? (La verdad... 🙈)",
-        imagen: "./assets/img/foto1.jpg", 
-        audio: "./assets/audio/nonsense.mp3", 
+        pregunta: "¿Qué es lo que más me gusta de tu cara? 🙈❤️",
+        imagen: "./assets/img/foto1.jpg",
+        audio: "./assets/audio/nonsense.mp3",
         segundoInicio: 36, duracion: 18,
-        opciones: ["Mis ojos", "Mi sonrisa", "Todo tú"],
-        correcta: 2, tematica: ["🎵", "💿", "💋", "✨"]
+        opciones: ["Mis ojos ✨", "Mi sonrisa 😊", "Todo es perfecto 💫"],
+        correcta: 2,
+        tematica: ["❤️", "🌷", "✨", "🌸"],
+        mensajeCorrecto: "¡Exacto! Todo tú me encanta ❤️"
     },
     {
-        pregunta: "¿Dónde fue nuestra primera cita perfecta?",
-        imagen: "./assets/img/foto2.jpg", 
-        audio: "./assets/audio/just_one_day.mp3", 
-        segundoInicio: 66, duracion: 12,      
-        opciones: ["Cine", "Parque", "Comiendo"],
-        correcta: 1, tematica: ["🍜", "🎬", "🌳", "💑"]
+        pregunta: "¿Dónde fue nuestra primera cita perfecta? 🍜",
+        imagen: "./assets/img/foto2.jpg",
+        audio: "./assets/audio/just_one_day.mp3",
+        segundoInicio: 66, duracion: 12,
+        opciones: ["En el cine 🎬", "En el parque 🌳", "Comiendo juntos 🍝"],
+        correcta: 2,
+        tematica: ["🍜", "❤️", "💑", "🌷"],
+        mensajeCorrecto: "¡Los fideos siempre nos unen! 🍜"
     },
     {
-        pregunta: "¿Qué planes tengo para nuestro futuro?",
-        imagen: "./assets/img/foto3.jpg", 
-        audio: "./assets/audio/paper_rings.mp3", 
-        segundoInicio: 36, duracion: 16,      
-        opciones: ["Viajar juntos", "Adoptar gatitos", "Casarnos"],
-        correcta: 2, tematica: ["💍", "✈️", "🐱", "🏠"]
+        pregunta: "¿Qué planes tengo para nuestro futuro? 💍",
+        imagen: "./assets/img/foto3.jpg",
+        audio: "./assets/audio/paper_rings.mp3",
+        segundoInicio: 36, duracion: 16,
+        opciones: ["Viajar por el mundo ✈️", "Tener gatitos 🐱", "Casarnos algún día 💒"],
+        correcta: 2,
+        tematica: ["💍", "❤️", "🏠", "✨"],
+        mensajeCorrecto: "Paper Rings 💍 - Taylor lo sabía"
     },
     {
-        pregunta: "¿Qué siento cuando estoy contigo?",
-        imagen: "./assets/img/foto4.jpg", 
-        audio: "./assets/audio/iris.mp3", 
-        segundoInicio: 61, duracion: 14,      
-        opciones: ["Paz", "Que el mundo desaparece", "Hambre"],
-        correcta: 1, tematica: ["❤️‍🔥", "🥺", "☁️", "✨"]
+        pregunta: "¿Qué siento cuando estoy contigo? 🌅",
+        imagen: "./assets/img/foto4.jpg",
+        audio: "./assets/audio/iris.mp3",
+        segundoInicio: 61, duracion: 14,
+        opciones: ["Paz infinita 🕊️", "Que el mundo desaparece 💫", "Mariposas 🦋"],
+        correcta: 1,
+        tematica: ["❤️", "✨", "🌙", "💫"],
+        mensajeCorrecto: "Cuando estamos juntos, solo existimos tú y yo ❤️"
     },
     {
-        pregunta: "¿Qué soy yo para ti?",
-        imagen: "./assets/img/foto5.jpg", 
-        audio: "./assets/audio/magic_shop.mp3", 
-        segundoInicio: 65, duracion: 15,      
-        opciones: ["Tu novio", "Tu Magic Shop", "Tu fan #1"],
-        correcta: 1, tematica: ["🔮", "🗝️", "🛡️", "💜"]
+        pregunta: "¿Qué soy yo para ti? ❤️",
+        imagen: "./assets/img/foto5.jpg",
+        audio: "./assets/audio/magic_shop.mp3",
+        segundoInicio: 65, duracion: 15,
+        opciones: ["Tu mejor amigo 👫", "Tu Magic Shop 🔮", "Tu fan #1 de K-pop 🎤"],
+        correcta: 1,
+        tematica: ["🔮", "❤️", "🗝️", "✨"],
+        mensajeCorrecto: "Siempre seré tu Magic Shop 🔮❤️"
     }
 ];
 
-const fotosFinales = [
-    "./assets/img/foto1.jpg", "./assets/img/foto2.jpg", 
-    "./assets/img/foto3.jpg", "./assets/img/foto4.jpg", 
-    "./assets/img/collage_final.png" 
-];
+const fotosFinales = ["./assets/img/foto_final.png"];
 
 let indiceActual = 0;
 let audioPlayer = document.getElementById("musica-fondo");
 let fadeInterval;
 let decoracionInterval;
 
-/* --- INICIO --- */
-// Precarga de audio
-preguntas.forEach(p => { let a = new Audio(); a.src = p.audio; a.preload = "auto"; });
-actualizarFondoDinamico(["❤️", "🌷", "✨"]); 
+/* === INICIO === */
+preguntas.forEach(p => {
+    let a = new Audio();
+    a.src = p.audio;
+    a.preload = "auto";
+});
+
+// Generar estrellas aleatorias al cargar
+generarEstrellasAleatorias();
+// Generar gaviotas con movimiento irregular
+generarGaviotasIrregulares();
+
+actualizarFondoDinamico(["❤️", "🌷", "✨", "💖"]);
+
+/* === ESTRELLAS ALEATORIAS === */
+function generarEstrellasAleatorias() {
+    const container = document.getElementById('stars-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const numEstrellas = 15 + Math.floor(Math.random() * 10); // 15-25 estrellas
+
+    for (let i = 0; i < numEstrellas; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 40 + '%'; // Solo en parte superior
+        star.style.width = (2 + Math.random() * 3) + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.animationDuration = (2 + Math.random() * 2) + 's';
+        container.appendChild(star);
+    }
+
+    // Regenerar cada 30 segundos para variedad
+    setTimeout(generarEstrellasAleatorias, 30000);
+}
+
+/* === GAVIOTAS CON MOVIMIENTO IRREGULAR === */
+function generarGaviotasIrregulares() {
+    const container = document.getElementById('seagulls-container');
+    if (!container) return;
+
+    function crearGaviota() {
+        const gaviota = document.createElement('span');
+        gaviota.className = 'seagull';
+        gaviota.textContent = '⌒'; // Forma de gaviota
+
+        // Posición inicial aleatoria
+        const startFromLeft = Math.random() > 0.5;
+        gaviota.style.left = startFromLeft ? '-5%' : '105%';
+        gaviota.style.top = (5 + Math.random() * 30) + '%';
+        gaviota.style.fontSize = (0.8 + Math.random() * 0.8) + 'rem';
+        gaviota.style.transform = startFromLeft ? 'scaleX(1)' : 'scaleX(-1)';
+
+        container.appendChild(gaviota);
+
+        // Animación manual con dirección variable
+        const direccion = startFromLeft ? 1 : -1;
+        const velocidad = 0.05 + Math.random() * 0.1;
+        const amplitud = 10 + Math.random() * 20;
+        let posX = startFromLeft ? -5 : 105;
+        let tiempo = 0;
+
+        function mover() {
+            tiempo += 0.02;
+            posX += velocidad * direccion;
+            const posY = parseFloat(gaviota.style.top) + Math.sin(tiempo * 2) * 0.1;
+
+            gaviota.style.left = posX + '%';
+            gaviota.style.top = posY + '%';
+
+            // Pequeño aleteo
+            const aleteo = Math.sin(tiempo * 10) * 5;
+            gaviota.style.transform = `scaleX(${direccion}) rotate(${aleteo}deg)`;
+
+            if (posX > -10 && posX < 110) {
+                requestAnimationFrame(mover);
+            } else {
+                gaviota.remove();
+            }
+        }
+
+        mover();
+    }
+
+    // Crear gaviotas a intervalos irregulares
+    function programarGaviota() {
+        crearGaviota();
+        const siguiente = 3000 + Math.random() * 5000; // 3-8 segundos
+        setTimeout(programarGaviota, siguiente);
+    }
+
+    // Iniciar con algunas gaviotas
+    programarGaviota();
+    setTimeout(programarGaviota, 2000);
+}
 
 function iniciarExperiencia() {
-    document.getElementById("pantalla-intro").classList.remove("activa");
-    document.getElementById("pantalla-intro").classList.add("hidden");
-    document.getElementById("pantalla-quiz").classList.remove("hidden");
-    document.getElementById("pantalla-quiz").classList.add("activa");
-    cargarPregunta();
+    const intro = document.getElementById("pantalla-intro");
+    intro.style.opacity = "0";
+    intro.style.transform = "scale(0.95)";
+
+    setTimeout(() => {
+        intro.classList.remove("activa");
+        intro.classList.add("hidden");
+        document.getElementById("pantalla-quiz").classList.remove("hidden");
+        document.getElementById("pantalla-quiz").classList.add("activa");
+        cargarPregunta();
+    }, 500);
+
+    lanzarConfetiBienvenida();
 }
 
 function cargarPregunta() {
-    if (indiceActual >= preguntas.length) { mostrarFinal(); return; }
+    if (indiceActual >= preguntas.length) {
+        mostrarFinal();
+        return;
+    }
 
     const data = preguntas[indiceActual];
-    document.getElementById("pregunta-texto").innerText = data.pregunta;
+
+    const preguntaTexto = document.getElementById("pregunta-texto");
+    preguntaTexto.style.opacity = "0";
+    preguntaTexto.style.transform = "translateY(-20px)";
+
+    setTimeout(() => {
+        preguntaTexto.innerText = data.pregunta;
+        preguntaTexto.style.transition = "all 0.5s ease";
+        preguntaTexto.style.opacity = "1";
+        preguntaTexto.style.transform = "translateY(0)";
+    }, 100);
+
     document.getElementById("pregunta-imagen").src = data.imagen;
-    
+
     const contenedor = document.getElementById("opciones-container");
-    contenedor.innerHTML = ""; 
-    
+    contenedor.innerHTML = "";
+
     data.opciones.forEach((op, i) => {
         const btn = document.createElement("button");
         btn.classList.add("btn-opcion");
+        btn.style.opacity = "0";
+        btn.style.transform = "translateX(-30px)";
         btn.innerText = op;
-        btn.onclick = () => verificarRespuesta(i, data.correcta, btn);
+        btn.onclick = () => verificarRespuesta(i, data.correcta, btn, data.mensajeCorrecto);
         contenedor.appendChild(btn);
+
+        setTimeout(() => {
+            btn.style.transition = "all 0.4s ease";
+            btn.style.opacity = "1";
+            btn.style.transform = "translateX(0)";
+        }, 200 + (i * 150));
     });
 
     gestionarCambioDeAudio(data.audio, data.segundoInicio);
     iniciarBarraTiempo(data.duracion);
-    actualizarFondoDinamico(data.tematica); 
+    actualizarFondoDinamico(data.tematica);
 }
 
-function verificarRespuesta(elegida, correcta, btn) {
+function verificarRespuesta(elegida, correcta, btn, mensajeCorrecto) {
     if (elegida === correcta) {
         btn.classList.add("correct");
-        lanzarConfetiSimple();
-        hacerFadeOut(() => { indiceActual++; cargarPregunta(); });
+        lanzarConfetiCelebracion();
+
+        const toast = crearToastMensaje(mensajeCorrecto || "¡Correcto! ❤️");
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+
+        setTimeout(() => {
+            hacerFadeOut(() => {
+                indiceActual++;
+                cargarPregunta();
+            });
+        }, 1500);
     } else {
         btn.classList.add("wrong");
         const t = btn.innerText;
-        btn.innerText = "¡Nop! 🙈";
-        setTimeout(() => { btn.classList.remove("wrong"); btn.innerText = t; }, 1000);
+        btn.innerText = "¡Intenta otra vez! 🙈";
+
+        if (navigator.vibrate) navigator.vibrate(100);
+
+        setTimeout(() => {
+            btn.classList.remove("wrong");
+            btn.innerText = t;
+        }, 1200);
     }
+}
+
+function crearToastMensaje(mensaje) {
+    const toast = document.createElement("div");
+    toast.style.cssText = `
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(220, 20, 60, 0.95), rgba(232, 125, 78, 0.9));
+        color: white;
+        padding: 20px 30px;
+        border-radius: 30px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        z-index: 9999;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        animation: toastIn 0.5s ease forwards;
+        border: 2px solid rgba(255,255,255,0.3);
+    `;
+    toast.innerText = mensaje;
+
+    const style = document.createElement("style");
+    style.textContent = `
+        @keyframes toastIn {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(0.8); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+    setTimeout(() => style.remove(), 3000);
+
+    return toast;
 }
 
 function actualizarFondoDinamico(emojis) {
     const bg = document.getElementById('dynamic-bg');
-    if(!bg) return;
-    clearInterval(decoracionInterval); 
-    bg.innerHTML = ""; 
+    if (!bg) return;
+    clearInterval(decoracionInterval);
+
+    const tulipanes = ["🌷", "💐", "🌸", "🌺"];
+    const corazones = ["❤️", "💖", "💕", "💗"];
+    const estrellas = ["✨", "⭐", "💫", "🌟"];
 
     const crearElemento = () => {
         const div = document.createElement('div');
         div.classList.add('floating-item');
-        if (Math.random() > 0.3) {
-            div.innerText = "🌷";
-            div.classList.add('anim-bouquet'); 
+
+        const rand = Math.random();
+
+        if (rand > 0.7) {
+            div.innerText = tulipanes[Math.floor(Math.random() * tulipanes.length)];
+            div.classList.add('anim-bouquet');
+            div.style.fontSize = (2 + Math.random() * 1.5) + "rem";
+        } else if (rand > 0.45) {
+            div.innerText = corazones[Math.floor(Math.random() * corazones.length)];
+            div.classList.add('anim-heart');
+            div.style.fontSize = (1.8 + Math.random() * 1.2) + "rem";
+        } else if (rand > 0.25) {
+            const todosEmojis = [...emojis];
+            div.innerText = todosEmojis[Math.floor(Math.random() * todosEmojis.length)];
+            div.classList.add('anim-float');
         } else {
-            div.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            div.classList.add('anim-float'); 
+            div.innerText = estrellas[Math.floor(Math.random() * estrellas.length)];
+            div.classList.add('anim-sparkle');
+            div.style.fontSize = (1.5 + Math.random()) + "rem";
         }
+
         div.style.left = Math.random() * 100 + "vw";
-        div.style.animationDuration = (Math.random() * 5 + 5) + "s"; 
+        div.style.animationDuration = (10 + Math.random() * 8) + "s";
         bg.appendChild(div);
-        setTimeout(() => div.remove(), 10000);
+        setTimeout(() => div.remove(), 18000);
     };
-    decoracionInterval = setInterval(crearElemento, 600);
-    for(let i=0; i<5; i++) crearElemento();
+
+    decoracionInterval = setInterval(crearElemento, 700);
+    for (let i = 0; i < 10; i++) crearElemento();
 }
 
-/* --- MOSTRAR FINAL --- */
+/* === PANTALLA FINAL === */
 function mostrarFinal() {
-    document.getElementById("pantalla-quiz").classList.remove("activa");
-    document.getElementById("pantalla-quiz").classList.add("hidden");
-    document.getElementById("pantalla-final").classList.remove("hidden");
-    document.getElementById("pantalla-final").classList.add("activa");
+    const quiz = document.getElementById("pantalla-quiz");
+    quiz.style.opacity = "0";
 
-    // Limpieza
-    clearInterval(decoracionInterval);
-    const bg = document.getElementById('dynamic-bg'); if(bg) bg.innerHTML = ""; 
-    const corners = document.getElementById('corners'); if(corners) corners.style.display = 'none';
-
-    // 1. ÁRBOL: Iniciamos con un pequeño retraso
     setTimeout(() => {
-        iniciarAnimacionArbol();
-    }, 100);
+        quiz.classList.remove("activa");
+        quiz.classList.add("hidden");
+        document.getElementById("pantalla-final").classList.remove("hidden");
+        document.getElementById("pantalla-final").classList.add("activa");
 
-    // 2. Slideshow
-    iniciarSlideshow();
+        clearInterval(decoracionInterval);
+        const bg = document.getElementById('dynamic-bg');
+        if (bg) bg.innerHTML = "";
+        const corners = document.getElementById('corners');
+        if (corners) corners.style.display = 'none';
 
-    // 3. Audio Final
-    audioPlayer.src = "./assets/audio/love_story.mp3";
-    audioPlayer.currentTime = 98; 
-    audioPlayer.volume = 0;
-    
-    let playPromise = audioPlayer.play();
-    if (playPromise !== undefined) {
-        playPromise.then(_ => { 
-            hacerFadeInLento(); 
-            // Mostramos la pregunta después de 10 segundos
-            setTimeout(revelarPropuesta, 10000); 
-        })
-        .catch(e => { setTimeout(revelarPropuesta, 5000); });
-    } else {
-        setTimeout(revelarPropuesta, 5000);
-    }
+        setTimeout(() => {
+            iniciarAnimacionArbol();
+        }, 300);
+
+        audioPlayer.src = "./assets/audio/love_story.mp3";
+        audioPlayer.currentTime = 98;
+        audioPlayer.volume = 0;
+
+        let playPromise = audioPlayer.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                hacerFadeInLento();
+                setTimeout(revelarPropuesta, 10000);
+            })
+                .catch(e => {
+                    console.log("Audio autoplay prevented");
+                    setTimeout(revelarPropuesta, 5000);
+                });
+        } else {
+            setTimeout(revelarPropuesta, 5000);
+        }
+    }, 500);
 }
 
 function revelarPropuesta() {
     const caja = document.getElementById("propuesta-container");
-    if(caja.classList.contains("invisible")) {
+    if (caja.classList.contains("invisible")) {
         caja.classList.remove("invisible");
         caja.classList.add("visible");
-        lanzarConfetiSimple();
-    }
-}
+        lanzarConfetiCelebracion();
 
-function iniciarSlideshow() {
-    const contenedor = document.getElementById("slideshow");
-    if(!contenedor) return;
-    contenedor.innerHTML = ""; 
-    fotosFinales.forEach((src, i) => {
-        const img = document.createElement("img");
-        img.src = src;
-        img.classList.add("slide-foto");
-        if(i === 0) img.classList.add("active");
-        contenedor.appendChild(img);
-    });
-    let idx = 0;
-    setInterval(() => {
-        const slides = document.querySelectorAll(".slide-foto");
-        if(slides.length>0){
-            slides[idx].classList.remove("active");
-            idx = (idx + 1) % slides.length;
-            slides[idx].classList.add("active");
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100, 50, 200]);
         }
-    }, 3500);
+    }
 }
 
 function aceptarPropuesta() {
     lanzarConfetiGigante();
-    audioPlayer.volume = 1.0; 
-    setTimeout(() => { alert("¡TE AMO! Gracias por decir que sí ❤️💍"); }, 1500);
+    audioPlayer.volume = 1.0;
+
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 400]);
+    }
+
+    setTimeout(() => {
+        alert("¡TE AMO MUCHO! Gracias por decir que sí ❤️💍\n\nEres lo mejor que me ha pasado ✨");
+    }, 1500);
 }
 
-/* --- LÓGICA DEL ÁRBOL CORREGIDA (AUTOMÁTICO Y PERSISTENTE) --- */
+/* === ÁRBOL - SOLO SACUDIR, NO CREAR NUEVOS ELEMENTOS === */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
-    
+
     if (!canvas[0] || !canvas[0].getContext) {
         console.error("Canvas no encontrado");
         return;
     }
 
-    // Ajustar tamaño del canvas a la pantalla
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-    
-    canvas.attr("width", width);
-    canvas.attr("height", height);
+    var canvasWidth = canvas.width();
+    var canvasHeight = canvas.height();
 
-    // Escalar las coordenadas del árbol proporcionalmente al tamaño de pantalla
-    var scaleX = width / 1100;  // 1100 es el ancho original del diseño
-    var scaleY = height / 680;  // 680 es el alto original del diseño
-    var scaleFactor = Math.min(scaleX, scaleY, 1); // No escalar más grande que el original
+    canvas.attr("width", canvasWidth);
+    canvas.attr("height", canvasHeight);
+
+    // Escalar y CENTRAR el árbol correctamente
+    var scaleX = canvasWidth / 1100;
+    var scaleY = canvasHeight / 680;
+    var scaleFactor = Math.min(scaleX, scaleY, 1);
+
+    // Centro del canvas
+    var centerX = canvasWidth / 2;
 
     var opts = {
-        seed: { x: width / 2, y: 50, color: "rgb(190, 26, 37)", scale: 2 },
-        branch: [ 
-            [535 * scaleX, 680 * scaleY, 570 * scaleX, 250 * scaleY, 500 * scaleX, 200 * scaleY, 30 * scaleFactor, 100, 
-                [ 
-                    [540 * scaleX, 500 * scaleY, 455 * scaleX, 417 * scaleY, 340 * scaleX, 400 * scaleY, 13 * scaleFactor, 100, 
-                        [ [450 * scaleX, 435 * scaleY, 434 * scaleX, 430 * scaleY, 394 * scaleX, 395 * scaleY, 2 * scaleFactor, 40] ]
-                    ], 
-                    [550 * scaleX, 445 * scaleY, 600 * scaleX, 356 * scaleY, 680 * scaleX, 345 * scaleY, 12 * scaleFactor, 100, 
-                        [ [578 * scaleX, 400 * scaleY, 648 * scaleX, 409 * scaleY, 661 * scaleX, 426 * scaleY, 3 * scaleFactor, 80] ]
-                    ], 
-                    [539 * scaleX, 281 * scaleY, 537 * scaleX, 248 * scaleY, 534 * scaleX, 217 * scaleY, 3 * scaleFactor, 40], 
-                    [546 * scaleX, 397 * scaleY, 413 * scaleX, 247 * scaleY, 328 * scaleX, 244 * scaleY, 9 * scaleFactor, 80, 
-                        [ 
-                            [427 * scaleX, 286 * scaleY, 383 * scaleX, 253 * scaleY, 371 * scaleX, 205 * scaleY, 2 * scaleFactor, 40], 
-                            [498 * scaleX, 345 * scaleY, 435 * scaleX, 315 * scaleY, 395 * scaleX, 330 * scaleY, 4 * scaleFactor, 60] 
-                        ]
-                    ], 
-                    [546 * scaleX, 357 * scaleY, 608 * scaleX, 252 * scaleY, 678 * scaleX, 221 * scaleY, 6 * scaleFactor, 100, 
-                        [ [590 * scaleX, 293 * scaleY, 646 * scaleX, 277 * scaleY, 648 * scaleX, 271 * scaleY, 2 * scaleFactor, 80] ]
-                    ] 
+        seed: { x: centerX, y: 50, color: "rgb(114, 47, 55)", scale: 2 },
+        branch: [
+            // Tronco principal centrado
+            [centerX, canvasHeight - 10, centerX + 30 * scaleFactor, 250 * scaleY, centerX - 30 * scaleFactor, 200 * scaleY, 25 * scaleFactor, 100,
+                [
+                    // Rama izquierda
+                    [centerX, 450 * scaleY, centerX - 100 * scaleFactor, 380 * scaleY, centerX - 180 * scaleFactor, 350 * scaleY, 12 * scaleFactor, 100,
+                        [[centerX - 120 * scaleFactor, 380 * scaleY, centerX - 150 * scaleFactor, 360 * scaleY, centerX - 180 * scaleFactor, 340 * scaleY, 3 * scaleFactor, 50]]
+                    ],
+                    // Rama derecha
+                    [centerX, 450 * scaleY, centerX + 100 * scaleFactor, 380 * scaleY, centerX + 180 * scaleFactor, 350 * scaleY, 12 * scaleFactor, 100,
+                        [[centerX + 120 * scaleFactor, 380 * scaleY, centerX + 150 * scaleFactor, 360 * scaleY, centerX + 180 * scaleFactor, 340 * scaleY, 3 * scaleFactor, 50]]
+                    ],
+                    // Rama superior central
+                    [centerX, 280 * scaleY, centerX, 220 * scaleY, centerX, 180 * scaleY, 4 * scaleFactor, 40],
+                    // Rama izquierda superior
+                    [centerX - 20 * scaleFactor, 350 * scaleY, centerX - 130 * scaleFactor, 250 * scaleY, centerX - 180 * scaleFactor, 220 * scaleY, 8 * scaleFactor, 80,
+                    [
+                        [centerX - 100 * scaleFactor, 280 * scaleY, centerX - 140 * scaleFactor, 250 * scaleY, centerX - 160 * scaleFactor, 200 * scaleY, 3 * scaleFactor, 40]
+                    ]
+                    ],
+                    // Rama derecha superior
+                    [centerX + 20 * scaleFactor, 350 * scaleY, centerX + 130 * scaleFactor, 250 * scaleY, centerX + 180 * scaleFactor, 220 * scaleY, 8 * scaleFactor, 80,
+                    [[centerX + 100 * scaleFactor, 280 * scaleY, centerX + 140 * scaleFactor, 250 * scaleY, centerX + 160 * scaleFactor, 200 * scaleY, 3 * scaleFactor, 40]]
+                    ]
                 ]
-            ] 
+            ]
         ],
-        bloom: { num: 700, width: width, height: height * 0.95 },
-        footer: { width: width, height: 5, speed: 10 }
+        bloom: { num: 400, width: canvasWidth, height: canvasHeight * 0.7 },
+        footer: { width: canvasWidth * 0.6, height: 5, speed: 10 }
     };
 
-    var tree = new Tree(canvas[0], width, height, opts);
+    var tree = new Tree(canvas[0], canvasWidth, canvasHeight, opts);
     var seed = tree.seed;
     var foot = tree.footer;
 
-    // Click: Sacudir y añadir flores
-    canvas.click(function(e) {
+    window.loveTree = tree;
+
+    // === CLICK: SOLO SACUDIR, NO CREAR ELEMENTOS NUEVOS ===
+    canvas.on('click touchstart', function (e) {
+        e.preventDefault();
+
+        // Solo efecto de sacudida visual
         canvas.addClass("shaking");
-        setTimeout(function() { canvas.removeClass("shaking"); }, 500);
+        setTimeout(function () { canvas.removeClass("shaking"); }, 500);
+
+        // Pequeño confeti sin crear elementos en el canvas
         var offset = canvas.offset();
-        var x = e.pageX - offset.left;
-        var y = e.pageY - offset.top;
-        for (var i = 0; i < 5; i++) {
-            var point = new Point(x, y);
-            var newBloom = new Bloom(tree, point, tree.seed.heart.figure, 'rgb(255,0,0)', 1, null, 1, new Point(x, height), 300);
-            tree.addBloom(newBloom);
-        }
+        var x = e.type === 'touchstart' && e.originalEvent.touches ?
+            e.originalEvent.touches[0].pageX : e.pageX;
+        var y = e.type === 'touchstart' && e.originalEvent.touches ?
+            e.originalEvent.touches[0].pageY : e.pageY;
+
+        confetti({
+            particleCount: 8,
+            spread: 40,
+            origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+            colors: ['#e07a5f', '#c84c09', '#d4a845', '#722f37']
+        });
     });
 
-    // --- SECUENCIA AUTOMÁTICA SIN ESPERAR CLICS ---
+    // === ANIMACIÓN DEL ÁRBOL ===
     var runAsync = eval(Jscex.compile("async", function () {
-        // Dibujar el corazón inicial (bypass de hover - no esperamos clic)
         seed.drawHeart();
         $await(Jscex.Async.sleep(300));
-        
-        // Animación de reducción del corazón (semilla cayendo)
+
         while (seed.canScale()) {
             seed.scale(0.95);
             $await(Jscex.Async.sleep(10));
         }
-        
-        // Semilla cae al suelo
+
         while (seed.canMove()) {
             seed.move(0, 2);
             foot.draw();
             $await(Jscex.Async.sleep(10));
         }
 
-        // Crecer el árbol
         while (tree.canGrow()) {
             tree.grow();
             $await(Jscex.Async.sleep(10));
         }
 
-        // Florecer - añadir flores gradualmente
         while (tree.bloomsCache.length > 0) {
             tree.flower(2);
             $await(Jscex.Async.sleep(10));
         }
-        
-        // ¡FIN! El árbol queda estático y visible.
-        // NO hay ciclos de jump() o move() que borren el canvas.
-        console.log("Árbol completado - quedará estático");
+
+        console.log("Árbol completado ❤️");
     }));
 
     runAsync().start();
 }
 
-/* --- UTILIDADES --- */
-function iniciarBarraTiempo(s) { const b = document.getElementById("barra-progreso"); if(b){ b.style.transition = "none"; b.style.width = "100%"; void b.offsetWidth; b.style.transition = `width ${s}s linear`; b.style.width = "0%"; }}
-function gestionarCambioDeAudio(ruta, inicio) { audioPlayer.volume = 0; audioPlayer.src = ruta; audioPlayer.currentTime = inicio; audioPlayer.play().then(hacerFadeIn).catch(e => console.log("...")); }
-function hacerFadeIn() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.8){ vol+=0.05; audioPlayer.volume=vol; } else clearInterval(fadeInterval); }, 100); }
-function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInterval = setInterval(() => { if(vol<0.95){ vol+=0.05; audioPlayer.volume=vol; } else { audioPlayer.volume = 1; clearInterval(fadeInterval); } }, 100); }
-function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
-function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
+/* === UTILIDADES === */
+function iniciarBarraTiempo(s) {
+    const b = document.getElementById("barra-progreso");
+    if (b) {
+        b.style.transition = "none";
+        b.style.width = "100%";
+        void b.offsetWidth;
+        b.style.transition = `width ${s}s linear`;
+        b.style.width = "0%";
+    }
+}
 
-// Confeti Corazón Grande
-function lanzarConfetiGigante() { 
-    var end = Date.now() + 5000;
+function gestionarCambioDeAudio(ruta, inicio) {
+    audioPlayer.volume = 0;
+    audioPlayer.src = ruta;
+    audioPlayer.currentTime = inicio;
+    audioPlayer.play().then(hacerFadeIn).catch(e => console.log("Audio blocked"));
+}
+
+function hacerFadeIn() {
+    clearInterval(fadeInterval);
+    let vol = 0;
+    fadeInterval = setInterval(() => {
+        if (vol < 0.8) { vol += 0.05; audioPlayer.volume = vol; }
+        else clearInterval(fadeInterval);
+    }, 100);
+}
+
+function hacerFadeInLento() {
+    clearInterval(fadeInterval);
+    let vol = 0;
+    fadeInterval = setInterval(() => {
+        if (vol < 0.95) { vol += 0.03; audioPlayer.volume = vol; }
+        else { audioPlayer.volume = 1; clearInterval(fadeInterval); }
+    }, 150);
+}
+
+function hacerFadeOut(cb) {
+    clearInterval(fadeInterval);
+    let vol = audioPlayer.volume;
+    fadeInterval = setInterval(() => {
+        if (vol > 0.05) { vol -= 0.05; audioPlayer.volume = vol; }
+        else { clearInterval(fadeInterval); audioPlayer.pause(); if (cb) cb(); }
+    }, 100);
+}
+
+/* === CONFETI === */
+function lanzarConfetiBienvenida() {
+    confetti({
+        particleCount: 80, spread: 100, origin: { y: 0.6 },
+        colors: ['#dc143c', '#c94c7e', '#f5b041', '#e87d4e']
+    });
+}
+
+function lanzarConfetiCelebracion() {
+    confetti({
+        particleCount: 60, spread: 80, origin: { y: 0.65 },
+        colors: ['#dc143c', '#c94c7e', '#f5b041', '#e87d4e', '#d4a845']
+    });
+}
+
+function lanzarConfetiGigante() {
+    var end = Date.now() + 6000;
+    var colors = ['#dc143c', '#c94c7e', '#f5b041', '#e87d4e', '#d4a845'];
+
     (function frame() {
-        confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d'], scalar: 4 });
-        confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, shapes: ['heart'], colors: ['#ff0000', '#ff4d6d'], scalar: 4 });
+        confetti({
+            particleCount: 8, angle: 60, spread: 65, origin: { x: 0 },
+            shapes: ['heart', 'circle'], colors: colors, scalar: 2.5
+        });
+        confetti({
+            particleCount: 8, angle: 120, spread: 65, origin: { x: 1 },
+            shapes: ['heart', 'circle'], colors: colors, scalar: 2.5
+        });
         if (Date.now() < end) requestAnimationFrame(frame);
-    }()); 
+    }());
 }

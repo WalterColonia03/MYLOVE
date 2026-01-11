@@ -1,48 +1,94 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Para el amor de mi vida ❤️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* ESTILOS CRÍTICOS PARA EL CANVAS */
-        /* Lo ponemos aquí para asegurar prioridad máxima */
+        /* Canvas del árbol - izquierda, centrado */
         #canvas-tree {
-            position: fixed; /* Fijo para cubrir toda la pantalla */
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 50%;
             height: 100%;
-            z-index: 1; /* Nivel 1: Fondo */
-            pointer-events: auto; /* Permite tocar para sacudir */
+            z-index: 7;
+            pointer-events: auto;
             cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            #canvas-tree {
+                width: 100%;
+                height: 50%;
+                top: auto;
+                bottom: 20%;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <div id="dynamic-bg" class="background-decorations"></div>
+    <!-- === FONDO ATARDECER === -->
+    <div class="sunset-background">
 
-    <div id="corners" class="corners-container">
-        <div class="corner-decoration top-left">🍂✨</div>
-        <div class="corner-decoration top-right">✨🍁</div>
-        <div class="corner-decoration bottom-left">🍁🧡</div>
-        <div class="corner-decoration bottom-right">🧡🍂</div>
+        <!-- Estrellas (generadas aleatoriamente por JS) -->
+        <div id="stars-container" class="stars-container"></div>
+
+        <!-- Sol centrado -->
+        <div class="sun-container">
+            <div class="sun"></div>
+            <div class="sun-reflection"></div>
+        </div>
+
+        <!-- Gaviotas (movimiento irregular por JS) -->
+        <div id="seagulls-container" class="seagulls-container"></div>
+
+        <!-- Océano limpio -->
+        <div class="ocean-container">
+            <div class="ocean"></div>
+
+            <!-- Delfines y peces (lado derecho para no chocar) -->
+            <div class="sea-life-container">
+                <span class="dolphin">🐬</span>
+                <span class="dolphin">🐬</span>
+                <span class="fish">🐟</span>
+                <span class="fish"></span>
+            </div>
+        </div>
     </div>
 
+    <!-- Decoraciones flotantes -->
+    <div id="dynamic-bg" class="background-decorations"></div>
+
+    <!-- Esquinas decorativas -->
+    <div id="corners" class="corners-container">
+        <div class="corner-decoration top-left">🌷❤️</div>
+        <div class="corner-decoration top-right">❤️🌸</div>
+        <div class="corner-decoration bottom-left">🍜✨</div>
+        <div class="corner-decoration bottom-right">🎵❤️</div>
+    </div>
+
+    <!-- === PANTALLA INTRO === -->
     <section id="pantalla-intro" class="pantalla activa">
         <div class="contenido-centro glass-card-intro">
             <h1 class="titulo-animado">Hola mi vida ❤️</h1>
-            <p class="subtitulo">Tengo algo muy especial para ti...</p>
-            <button class="btn-inicio" onclick="iniciarExperiencia()">VER SORPRESA ✨</button>
+            <p class="subtitulo">Tengo algo muy especial para ti... ✨</p>
+            <button class="btn-inicio" onclick="iniciarExperiencia()">VER SORPRESA 🌷</button>
         </div>
     </section>
 
+    <!-- === PANTALLA QUIZ === -->
     <section id="pantalla-quiz" class="pantalla hidden">
         <div class="quiz-card glass-card">
             <div class="barra-tiempo-container">
@@ -50,42 +96,57 @@
             </div>
             <h2 id="pregunta-texto" class="pregunta">Cargando...</h2>
             <div class="imagen-container">
-                <img id="pregunta-imagen" src="" alt="Foto">
+                <img id="pregunta-imagen" src="" alt="Foto" onerror="this.style.display='none'">
             </div>
             <div id="opciones-container" class="opciones-grid"></div>
         </div>
     </section>
 
+    <!-- === PANTALLA FINAL === -->
     <section id="pantalla-final" class="pantalla hidden">
-        
+
+        <!-- Canvas del árbol - IZQUIERDA -->
         <canvas id="canvas-tree" width="1100" height="680"></canvas>
 
-        <div class="final-content" style="z-index: 20;">
+        <!-- Contenido principal - DERECHA CENTRADO -->
+        <div class="final-content">
+            <!-- Foto en círculo (la foto_final.png) -->
             <div id="slideshow" class="slideshow-container">
-                <img src="./assets/img/collage_final.png" class="slide-foto active">
+                <img src="./assets/img/foto_final.png" class="slide-foto active" alt="Nuestra foto"
+                    onerror="this.style.display='none'">
             </div>
 
             <div id="propuesta-container" class="propuesta-textos invisible">
                 <h1 class="titulo-final">¿Quieres ser mi novia?</h1>
                 <button id="btn-propuesta" class="btn-corazon" onclick="aceptarPropuesta()">
-                    SÍ ACEPTO SER TU NOVIA ❤️
+                    <div class="heart-shape"></div>
+                    <span>SÍ ACEPTO<br>SER TU NOVIA</span>
                 </button>
             </div>
         </div>
 
+        <!-- BTS -->
         <div class="bts-audience">
-            <img src="./assets/img/1_RM.png" class="tiny-member member-side">
-            <img src="./assets/img/2_JIN.png" class="tiny-member member-side">
-            <img src="./assets/img/3_SUGA.png" class="tiny-member member-side">
-            <img src="./assets/img/7_Jungkook.png" class="tiny-member member-center">
-            <img src="./assets/img/4_J-Hope.png" class="tiny-member member-side">
-            <img src="./assets/img/5_jimin.png" class="tiny-member member-side">
-            <img src="./assets/img/6_V.png" class="tiny-member member-side">
+            <img src="./assets/img/1_RM.png" class="tiny-member member-side" alt="RM"
+                onerror="this.style.display='none'">
+            <img src="./assets/img/2_JIN.png" class="tiny-member member-side" alt="Jin"
+                onerror="this.style.display='none'">
+            <img src="./assets/img/3_SUGA.png" class="tiny-member member-side" alt="Suga"
+                onerror="this.style.display='none'">
+            <img src="./assets/img/7_Jungkook.png" class="tiny-member member-center" alt="Jungkook"
+                onerror="this.style.display='none'">
+            <img src="./assets/img/4_J-Hope.png" class="tiny-member member-side" alt="J-Hope"
+                onerror="this.style.display='none'">
+            <img src="./assets/img/5_jimin.png" class="tiny-member member-side" alt="Jimin"
+                onerror="this.style.display='none'">
+            <img src="./assets/img/6_V.png" class="tiny-member member-side" alt="V" onerror="this.style.display='none'">
         </div>
     </section>
 
+    <!-- Audio -->
     <audio id="musica-fondo" loop></audio>
 
+    <!-- Scripts -->
     <script src="index_files/jquery.min.js"></script>
     <script src="index_files/jscex.min.js"></script>
     <script src="index_files/jscex-parser.js"></script>
@@ -98,4 +159,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
