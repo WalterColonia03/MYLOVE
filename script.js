@@ -130,7 +130,7 @@ function actualizarFondoDinamico(emojis) {
     for(let i=0; i<10; i++) crearElemento();
 }
 
-/* --- MOSTRAR FINAL (CORREGIDO) --- */
+/* --- MOSTRAR FINAL (ÁRBOL AUTOMÁTICO) --- */
 function mostrarFinal() {
     document.getElementById("pantalla-quiz").classList.remove("activa");
     document.getElementById("pantalla-quiz").classList.add("hidden");
@@ -141,7 +141,7 @@ function mostrarFinal() {
     document.getElementById('dynamic-bg').innerHTML = ""; 
     document.getElementById('corners').style.display = 'none';
 
-    // 1. ÁRBOL (Delay pequeño)
+    // 1. ÁRBOL (Delay de seguridad)
     setTimeout(() => { iniciarAnimacionArbol(); }, 500);
 
     // 2. Slideshow
@@ -156,8 +156,8 @@ function mostrarFinal() {
     if (playPromise !== undefined) {
         playPromise.then(_ => { 
             hacerFadeInLento(); 
-            // Esperamos a que el árbol crezca un poco para mostrar la pregunta al lado
-            setTimeout(revelarPropuesta, 12000); 
+            // Esperamos 10 segundos a que crezca el árbol para mostrar la pregunta
+            setTimeout(revelarPropuesta, 10000); 
         })
         .catch(e => { setTimeout(revelarPropuesta, 5000); });
     } else {
@@ -201,9 +201,10 @@ function aceptarPropuesta() {
     setTimeout(() => { alert("¡SABÍA QUE DIRÍAS QUE SÍ! ❤️💍\nTe amo infinitamente."); }, 1500);
 }
 
-/* --- ÁRBOL INTERACTIVO (SIN MOVIMIENTOS BRUSCOS) --- */
+/* --- LÓGICA DEL ÁRBOL REPARADA (BUCLES RESTAURADOS) --- */
 function iniciarAnimacionArbol() {
     var canvas = $('#canvas-tree');
+    // Ajuste: usar window.innerWidth para asegurar pantalla completa
     var width = window.innerWidth;
     var height = window.innerHeight;
 
@@ -211,7 +212,7 @@ function iniciarAnimacionArbol() {
     canvas.attr("height", height);
 
     var opts = {
-        seed: { x: width / 2 - 150, color: "rgb(190, 26, 37)", scale: 2 }, // Movemos el árbol a la IZQUIERDA (-150)
+        seed: { x: width / 2 - 20, color: "rgb(190, 26, 37)", scale: 2 }, 
         branch: [ [535, 680, 570, 250, 500, 200, 30, 100, [ [540, 500, 455, 417, 340, 400, 13, 100, [ [450, 435, 434, 430, 394, 395, 2, 40] ]], [550, 445, 600, 356, 680, 345, 12, 100, [ [578, 400, 648, 409, 661, 426, 3, 80] ]], [539, 281, 537, 248, 534, 217, 3, 40], [546, 397, 413, 247, 328, 244, 9, 80, [ [427, 286, 383, 253, 371, 205, 2, 40], [498, 345, 435, 315, 395, 330, 4, 60] ]], [546, 357, 608, 252, 678, 221, 6, 100, [ [590, 293, 646, 277, 648, 271, 2, 80] ]] ]] ],
         bloom: { num: 700, width: 1080, height: 650 },
         footer: { width: 1200, height: 5, speed: 10 }
@@ -222,12 +223,13 @@ function iniciarAnimacionArbol() {
     var foot = tree.footer;
     var hold = 1;
 
+    // Click para sacudir
     canvas.click(function(e) {
         canvas.addClass("shaking");
         setTimeout(function() { canvas.removeClass("shaking"); }, 500);
-        var offset = canvas.offset();
-        var x = e.pageX - offset.left;
-        var y = e.pageY - offset.top;
+        var offset = canvas.offset(), x, y;
+        x = e.pageX - offset.left;
+        y = e.pageY - offset.top;
         for (var i = 0; i < 5; i++) {
              var point = new Point(x, y);
              var figure = tree.seed.heart.figure;
@@ -237,19 +239,27 @@ function iniciarAnimacionArbol() {
         }
     });
 
-    var runAsync = eval(Jscex.compile("async", function () {
-        $await(seed.hover());
-        var hold = 0;
-        canvas.unbind("click");
-        canvas.unbind("mousemove");
-        canvas.removeClass('hand');
-        $await(foot.animate());
-        $await(tree.grow());
-        $await(tree.flow(20));
-        // ELIMINÉ: $await(tree.move("swing", 500)); // Esto movía el árbol
-        // ELIMINÉ: $await(tree.plumb());
-        // ELIMINÉ: $await(tree.jump()); // Esto limpiaba el canvas
+    // --- SECUENCIA DE ANIMACIÓN AUTOMÁTICA (ARREGLADA) ---
+    var growAnimate = eval(Jscex.compile("async", function () {
+        do {
+            tree.grow(); // Crece un paso
+            $await(Jscex.Async.sleep(10)); // Espera 10ms
+        } while (tree.canGrow()); // Repite mientras pueda crecer
     }));
+
+    var flowAnimate = eval(Jscex.compile("async", function () {
+        do {
+            tree.flower(2); // Florece 2 flores
+            $await(Jscex.Async.sleep(10)); // Espera
+        } while (tree.canFlower()); // Repite
+    }));
+
+    var runAsync = eval(Jscex.compile("async", function () {
+        // start
+        $await(growAnimate()); // Esperar a que termine de crecer
+        $await(flowAnimate()); // Esperar a que termine de florecer
+    }));
+
     runAsync().start();
 }
 
@@ -261,32 +271,12 @@ function hacerFadeInLento() { clearInterval(fadeInterval); let vol = 0; fadeInte
 function hacerFadeOut(cb) { clearInterval(fadeInterval); let vol = audioPlayer.volume; fadeInterval = setInterval(() => { if(vol>0.05){ vol-=0.05; audioPlayer.volume=vol; } else { clearInterval(fadeInterval); audioPlayer.pause(); if(cb) cb(); } }, 100); }
 function lanzarConfetiSimple() { confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } }); }
 
-// Confeti Corazón GIGANTE Y REAL
 function lanzarConfetiGigante() { 
     var end = Date.now() + 5000;
     var colors = ['#ff0000', '#ff4d6d', '#ffffff'];
-
     (function frame() {
-        confetti({ 
-            particleCount: 5, 
-            angle: 60, 
-            spread: 55, 
-            origin: { x: 0 }, 
-            shapes: ['heart'], // Forma corazón
-            colors: colors,
-            scalar: 2, // Tamaño reducido para que no se pixelee tanto, pero visible
-            ticks: 200 // Duran más en el aire
-        });
-        confetti({ 
-            particleCount: 5, 
-            angle: 120, 
-            spread: 55, 
-            origin: { x: 1 }, 
-            shapes: ['heart'], 
-            colors: colors,
-            scalar: 2,
-            ticks: 200
-        });
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, shapes: ['heart'], colors: colors, scalar: 3 }); // Tamaño 3 = grande
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, shapes: ['heart'], colors: colors, scalar: 3 });
         if (Date.now() < end) requestAnimationFrame(frame);
     }()); 
 }
