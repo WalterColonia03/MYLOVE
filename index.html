@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="hog-styles.css">
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -102,6 +103,11 @@
         </div>
     </section>
 
+    <!-- === PANTALLA JUEGO BTS (Hidden Object Game) === -->
+    <section id="pantalla-hog" class="pantalla hidden">
+        <!-- El contenido se genera dinámicamente por hog-game.js -->
+    </section>
+
     <!-- === PANTALLA FINAL === -->
     <section id="pantalla-final" class="pantalla hidden">
 
@@ -157,6 +163,7 @@
     <script src="index_files/functions.js" charset="utf-8"></script>
     <script src="index_files/love.js" charset="utf-8"></script>
 
+    <script src="hog-game.js"></script>
     <script src="script.js"></script>
 </body>
 

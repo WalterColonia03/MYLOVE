@@ -165,9 +165,11 @@ function iniciarExperiencia() {
     setTimeout(() => {
         intro.classList.remove("activa");
         intro.classList.add("hidden");
-        document.getElementById("pantalla-quiz").classList.remove("hidden");
-        document.getElementById("pantalla-quiz").classList.add("activa");
-        cargarPregunta();
+
+        // Iniciar el juego HOG de BTS en lugar del quiz
+        document.getElementById("pantalla-hog").classList.remove("hidden");
+        document.getElementById("pantalla-hog").classList.add("activa");
+        iniciarJuegoHOG();
     }, 500);
 
     lanzarConfetiBienvenida();
