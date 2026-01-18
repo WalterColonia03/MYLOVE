@@ -9,20 +9,52 @@ const hogEscenarios = [
         id: 'jungkook',
         miembro: 'Jungkook',
         fotoMiembro: './assets/img/7_Jungkook.png',
-        fondo: './assets/img/hog/scene_jungkook.png',
+        fondo: './assets/img/hog/Fondo_Original_Recortado.png', // Fondo original con la resolución correcta
         audio: './assets/audio/BTS  ON [Sub. Español].mp3',
         segundoInicio: 26,
         objetos: [
             {
                 id: 'pajaro',
-                nombre: 'Dibujo de pájaro',
-                imagen: './assets/img/hog/objects/object_bird_sketch_1768363605239.png',
-                x: 15, y: 55, // Porcentaje de posición
-                width: 8, height: 10,
+                nombre: 'Boceto del pájaro',
+                imagen: './assets/img/hog/objeto_pajaro.png',
+                x: 18, y: 78, // Posición exacta del recorte (% del fondo)
+                width: 15, height: 12,
                 pista: '🐦 Un ave que sueña con volar libre...'
+            },
+            {
+                id: 'camisa',
+                nombre: 'Camisa blanca',
+                imagen: './assets/img/hog/objeto_camisa.png',
+                x: 22, y: 28, // Colgada sobre la cama
+                width: 18, height: 25,
+                pista: '👕 Una prenda que guarda memorias...'
+            },
+            {
+                id: 'audifonos',
+                nombre: 'Audífonos',
+                imagen: './assets/img/hog/objeto_audifonos.png',
+                x: 52, y: 65, // En el escritorio
+                width: 12, height: 10,
+                pista: '🎧 Música que calma el alma...'
+            },
+            {
+                id: 'diario',
+                nombre: 'Diario viejo',
+                imagen: './assets/img/hog/objeto_diario.png',
+                x: 55, y: 78, // Esquina del escritorio
+                width: 14, height: 12,
+                pista: '📔 Páginas llenas de secretos...'
+            },
+            {
+                id: 'reloj',
+                nombre: 'Despertador retro',
+                imagen: './assets/img/hog/objeto_reloj.png',
+                x: 72, y: 58, // Junto al cactus
+                width: 10, height: 12,
+                pista: '⏰ El tiempo no espera a nadie...'
             }
         ],
-        mensajeIntro: 'Jungkook tuvo un accidente. Encuentra el dibujo que revela sus sueños.',
+        mensajeIntro: 'Jungkook tuvo un accidente. Encuentra las 5 pistas que revelan qué pasó.',
         contexto: 'El menor del grupo siempre soñó con volar como un pájaro...'
     },
     {
@@ -249,18 +281,17 @@ function cargarEscenario(indice) {
     // Crear HTML del escenario
     const escenarioHTML = `
         <div class="hog-scene-container">
-            <!-- Fondo del escenario -->
+            <!-- Fondo del escenario con objetos superpuestos -->
             <div class="hog-background">
-                <img src="${escenario.fondo}" alt="${escenario.miembro}" class="scene-bg-img">
-                
-                <!-- Capa de objetos clickeables -->
-                <div class="hog-objects-layer" id="objectsLayer">
+                <div class="scene-wrapper">
+                    <img src="${escenario.fondo}" alt="${escenario.miembro}" class="scene-bg-img">
+                    
+                    <!-- Objetos clickeables - Pro Workflow (100% overlay) -->
                     ${escenario.objetos.map(obj => `
                         <div class="hog-object" 
                              id="obj-${obj.id}"
                              data-id="${obj.id}"
-                             style="left: ${obj.x}%; top: ${obj.y}%; width: ${obj.width}%; height: ${obj.height}%;"
-                             onclick="clickObjeto('${obj.id}')">
+                             onclick="clickObjeto('${obj.id}', event)">
                             <img src="${obj.imagen}" alt="${obj.nombre}">
                         </div>
                     `).join('')}
@@ -317,10 +348,187 @@ function cargarEscenario(indice) {
         const msg = document.getElementById('contextMessage');
         if (msg) msg.classList.add('fade-out');
     }, 4000);
+
+    // SISTEMA DE HOVER BASADO EN ALPHA
+    // Solo muestra objeto cuando el mouse está sobre un pixel opaco
+    iniciarHoverAlphaDetection();
 }
 
-// Click en un objeto
-function clickObjeto(objetoId) {
+// Cache de imágenes para hover detection (evita recargar constantemente)
+const hoverImageCache = new Map();
+
+// Inicializar detección de hover basada en alpha
+function iniciarHoverAlphaDetection() {
+    const objectsLayer = document.querySelector('.scene-wrapper');
+    if (!objectsLayer) return;
+
+    // Precargar imágenes de objetos para detección rápida
+    document.querySelectorAll('.hog-object img').forEach(img => {
+        precargarImagenParaHover(img.src);
+    });
+
+    // Listener de movimiento del mouse
+    objectsLayer.addEventListener('mousemove', manejarHoverAlpha);
+    objectsLayer.addEventListener('mouseleave', () => {
+        // Quitar hover de todos los objetos al salir
+        document.querySelectorAll('.hog-object').forEach(obj => {
+            obj.classList.remove('hovering');
+        });
+    });
+}
+
+// Precargar imagen en cache para detección rápida
+function precargarImagenParaHover(src) {
+    if (hoverImageCache.has(src)) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = src;
+
+    img.onload = () => {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+        hoverImageCache.set(src, { canvas, ctx, width: img.naturalWidth, height: img.naturalHeight });
+    };
+}
+
+// Manejar hover con detección de alpha
+function manejarHoverAlpha(event) {
+    const objetos = document.querySelectorAll('.hog-object:not(.found)');
+    let objetoEncontrado = null;
+
+    // Verificar cada objeto de arriba hacia abajo (reverse para prioridad visual)
+    const objetosArray = Array.from(objetos).reverse();
+
+    for (const objetoElement of objetosArray) {
+        const imgElement = objetoElement.querySelector('img');
+        if (!imgElement) continue;
+
+        const rect = imgElement.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        // Verificar si está dentro de los límites de la imagen
+        if (mouseX < 0 || mouseY < 0 || mouseX > rect.width || mouseY > rect.height) continue;
+
+        // Calcular porcentaje
+        const percentX = mouseX / rect.width;
+        const percentY = mouseY / rect.height;
+
+        // Verificar alpha sincrónicamente usando cache
+        const cached = hoverImageCache.get(imgElement.src);
+        if (cached) {
+            const pixelX = Math.floor(percentX * cached.width);
+            const pixelY = Math.floor(percentY * cached.height);
+
+            try {
+                const pixelData = cached.ctx.getImageData(pixelX, pixelY, 1, 1).data;
+                if (pixelData[3] > 30) { // Pixel opaco
+                    objetoEncontrado = objetoElement;
+                    break; // Encontrado el objeto superior
+                }
+            } catch (e) {
+                // Error - ignorar
+            }
+        }
+    }
+
+    // Actualizar clases de hover
+    objetos.forEach(obj => {
+        if (obj === objetoEncontrado) {
+            obj.classList.add('hovering');
+        } else {
+            obj.classList.remove('hovering');
+        }
+    });
+}
+
+// Click en un objeto - con detección pixel-perfect
+function clickObjeto(objetoId, event) {
+    if (hogState.objetosEncontrados.includes(objetoId)) return;
+
+    // DETECCIÓN PIXEL-PERFECT: Verificar si el clic fue en un pixel opaco
+    const objetoElement = document.getElementById(`obj-${objetoId}`);
+    const imgElement = objetoElement.querySelector('img');
+
+    if (!imgElement || !event) {
+        // Fallback si no hay evento (called from reveal button)
+        procesarObjetoEncontrado(objetoId);
+        return;
+    }
+
+    // Obtener coordenadas del clic relativas a la imagen
+    const rect = imgElement.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    // Calcular posición relativa como porcentaje
+    const percentX = clickX / rect.width;
+    const percentY = clickY / rect.height;
+
+    // Verificar alpha en esa posición usando un canvas temporal
+    verificarAlphaEnPosicion(imgElement, percentX, percentY, (esOpaco) => {
+        if (esOpaco) {
+            procesarObjetoEncontrado(objetoId);
+        }
+        // Si es transparente, no hacer nada (clic ignorado)
+    });
+}
+
+// Verificar si un pixel es opaco usando Canvas
+function verificarAlphaEnPosicion(imgElement, percentX, percentY, callback) {
+    // Crear canvas temporal
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Usar una imagen ya cargada
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imgElement.src;
+
+    if (img.complete) {
+        // Imagen ya cargada
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+
+        const pixelX = Math.floor(percentX * img.naturalWidth);
+        const pixelY = Math.floor(percentY * img.naturalHeight);
+
+        try {
+            const pixelData = ctx.getImageData(pixelX, pixelY, 1, 1).data;
+            const alpha = pixelData[3]; // Canal alpha (0-255)
+            callback(alpha > 30); // Umbral de 30 para considerar opaco
+        } catch (e) {
+            // Error CORS o similar - fallback a siempre true
+            callback(true);
+        }
+    } else {
+        img.onload = () => {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+
+            const pixelX = Math.floor(percentX * img.naturalWidth);
+            const pixelY = Math.floor(percentY * img.naturalHeight);
+
+            try {
+                const pixelData = ctx.getImageData(pixelX, pixelY, 1, 1).data;
+                const alpha = pixelData[3];
+                callback(alpha > 30);
+            } catch (e) {
+                callback(true);
+            }
+        };
+        img.onerror = () => callback(true);
+    }
+}
+
+// Procesar objeto encontrado (después de verificar alpha)
+function procesarObjetoEncontrado(objetoId) {
     if (hogState.objetosEncontrados.includes(objetoId)) return;
 
     const escenario = hogEscenarios[hogState.escenarioActual];
