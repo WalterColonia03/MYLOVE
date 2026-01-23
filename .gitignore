@@ -1,0 +1,12 @@
+# Ignorar carpetas temporales de Unity en cualquier nivel
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Bb]uild/
+**/[Bb]uilds/
+**/[Ll]ogs/
+**/[Uu]ser[Ss]ettings/
+
+# Ignorar archivos de sistema generados automáticamente
+*.csproj
+*.sln
